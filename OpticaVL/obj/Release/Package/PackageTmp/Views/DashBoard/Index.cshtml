@@ -1,0 +1,143 @@
+﻿@model OpticaVL.ViewModel.DashBoard
+           @using System.Globalization
+@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Dashboard
+}
+
+@section filedeNavigation{
+    <!--<li><a href="#">produits</a></li>
+    <li class="active">liste des produits</li>-->
+}
+
+    <div class="row">
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-red">
+                <div class="inner">
+                    <h3>@Model.Caisse.ToString("N0", CultureInfo.CurrentCulture) <span style="font-size:17px;">FCFA</span></h3>
+                    <p>Caisse</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-social-usd-outline"></i>
+                </div>
+                <a href="@Url.RouteUrl("_journalCaisse")" class="small-box-footer">Details <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-aqua">
+                <div class="inner">
+                    <h3>@Model.CmdeAttente</h3>
+                    <p>Commandes en attente</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-bag"></i>
+                </div>
+                <a href="@Url.RouteUrl("_validationCommande")" class="small-box-footer">Details <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-green">
+                <div class="inner">
+                    <h3>@Model.CmdeDispo</h3>
+                    <p>Commandes dispo.</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-bag"></i>
+                </div>
+                <a href="@Url.RouteUrl("_commandeDispo")" class="small-box-footer">Details <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-xs-6">
+            <div class="small-box bg-yellow">
+                <div class="inner">
+                    <h3>@Model.CompteASolder.ToString("N0", CultureInfo.CurrentCulture) <span style="font-size:17px;">FCFA</span></h3>
+                    <p>Compte &agrave; solder</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-cash"></i>
+                </div>
+                <a href="@Url.RouteUrl("_factureASolder")" class="small-box-footer">Details <i class="fa fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="box box-default">
+                <div class="box-header ui-sortable-handle" style="cursor:move;">
+                </div>
+                <div class="box-body">
+                    <div id="AssurGraph" style="max-width:'98%'; height:500px;"></div>
+                </div>
+                <div class="box-footer ui-sortable-handle"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+@section scripts{
+@Scripts.Render("~/Scripts/js_")
+<script src="~/Scripts/jqxdraw.js"></script>
+<script src="~/Scripts/jqxchart.core.js"></script>
+    <script type="text/javascript">
+    $(".box.box-primary").css({ "background-color": '#ecf0f5;' });
+    $("#dashboard").addClass('active');
+    var source =
+    {
+        datatype: "json",
+        datafields: [
+            { name: 'Montant' },
+            { name: 'Code' },
+            { name: 'Taux'}
+        ],
+        url: "@Url.RouteUrl("_statAssuranceDette")"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source, { async: false, autoBind: true, loadError: function (xhr, status, error) { alert('Error loading "' + source.url + '" : ' + error); } });
+        // prepare jqxChart settings
+        var chargetot = new Intl.NumberFormat("fr-FR").format("@Model.ChargeAssur"); console.log(chargetot); console.log("@Model.ChargeClient");
+        var settings = {
+            title: "Repartition des dettes d'assurance("+chargetot+")FCFA",
+            description: "",
+            enableAnimations: true,
+            //showLegend: true,
+            showBorderLine: true,
+            //legendLayout: { left: 20, top: 160, width: 280, height: 200, flow: 'horizontal' },
+            legendPosition: { left: 70, top: 140, width: 100, height: 200 },
+            padding: { left: 5, top: 5, right: 5, bottom: 5 },
+            titlePadding: { left: 0, top: 0, right: 0, bottom: 10 },
+            source: dataAdapter,
+            colorScheme: 'scheme05',
+            seriesGroups:
+                [
+                    {
+                        type: 'donut',//donut
+                        showLabels: true,
+                        series:
+                            [
+                                {
+                                    dataField: 'Taux',
+                                    displayText: 'Code',
+                                    labelRadius: 170,
+                                    initialAngle: 15,
+                                    radius: 165,
+                                    innerRadius: 70,
+                                    centerOffset: 0,
+                                    /*formatSettings: { sufix: '%', decimalPlaces: 1 }*/
+                                    formatFunction: function (value) {
+                                        if (isNaN(value))
+                                            return value;
+                                        return parseFloat(value) + '%';
+                                    }
+                                }
+                            ]
+                    }
+                ]
+        };
+        $('#AssurGraph').jqxChart(settings);
+    </script>
+}

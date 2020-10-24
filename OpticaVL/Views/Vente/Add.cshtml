@@ -1,0 +1,668 @@
+﻿
+@{
+    ViewBag.Title = "Add";
+}
+
+@section headerStyle {
+    <link href="~/Content/jqx.base.css" rel="stylesheet" />
+    <style type="text/css">
+        .custlabel {
+            text-align: left !important;
+        }
+    </style>
+
+}
+
+@section NavigationTitle{
+    Vente
+}
+
+@section filedeNavigation{
+    <li><a href="#">vente</a></li>
+    <li class="active">ajouter</li>
+}
+
+
+<div class="row">
+    <div class="col-lg-4">
+        @*Html.Action("indexProdCat", "Produit")*@
+        @Html.Action("Cat", "Produit")
+    </div>
+    <div class="col-lg-5">
+        @using (Html.BeginForm("", "", FormMethod.Post, new { @class = "form-horizontal" }))
+        {
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-5  pull-right">
+                        <span>Stock:</span>
+                        <span data-bind="text:stock"></span>
+                    </div>
+                </div>
+                <div data-bind="visible:statutVerre">
+                    @*<div class="row">
+                        <div class="form-group col-sm-6">
+                            @Html.Label("Gamme verre")
+                            @Html.DropDownList("Gammeverre", (SelectList)ViewBag.GammeVerre, "--Selectionnez un type de verre--", new { @class = "form-control" })
+                        </div>
+                        <div class="form-group col-sm-6">
+                            @Html.Label("Marque")
+                            @Html.DropDownList("Marque", (SelectList)ViewBag.Marque, "--Selectionnez la marque--", new { @class = "form-control" })
+                        </div>
+                    </div>*@
+                    @*<div class="row">
+                        <div class="form-group col-sm-6">
+                            @Html.Label("Puissance")
+                            @Html.DropDownList("Puissance", (SelectList)ViewBag.Puissance, "--Selectionnez une puissance--", new { @class = "form-control" })
+                        </div>
+                        <div class="form-group col-sm-6">
+                            @Html.Label("Angle")
+                            @Html.DropDownList("Angle", (SelectList)ViewBag.Angle, "--Selectionnez un angle--", new { @class = "form-control" })
+                        </div>
+                    </div>*@
+                    <div class="row">
+                        <div class="form-group col-sm-3 pull-right"><button class="btn" type="button" onclick="$('#jqxTree').select();">OK</button></div>
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.Label("Ref prod", new { @class = "col-md-3 control-label custlabel" })
+                    <div class="col-md-8">
+                        @Html.TextBox("RefProd", null, new { @class = "form-control", @data_bind="value:refprod, disable:true" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.Label("Qte", new { @class = "col-md-3 control-label custlabel" })
+                    <div class="col-md-8">
+                        @Html.TextBox("Qte", null, new { @class = "form-control", @data_bind="value:qte" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.Label("Prix", new { @class = "col-md-3 control-label custlabel" })
+                    <div class="col-md-8">
+                        @Html.TextBox("Prix", null, new { @class = "form-control", @data_bind = "value:price" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.Label("Remise", new { @class = "col-md-3 control-label custlabel" })
+                    <div class="col-md-5">
+                        @Html.TextBox("Remise", null, new { @class = "form-control", @data_bind = "value:rem,event:{blur:checkValue('rem')}" })
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" style="margin-left:-25px; width:90px;" data-bind="options:remselect, value:remselected, event:{change:checkValue('rem')}"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.Label("Remise DG", new { @class = "col-md-3 control-label custlabel" })
+                    <div class="col-md-5">
+                        @Html.TextBox("Remisedg", null, new { @class = "form-control", @data_bind = "value:remdg, event:{blur:checkValue('remdg')}" })
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-control" style="margin-left:-25px; width:90px;" data-bind="options:remdgselect, value:remdgselected, event:{change:checkValue('remdg')}"></select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-md-6 pull-right">
+                        <button class="btn" type="button" data-bind="click:addItem">Ajouter</button>
+                        <button class="btn" type="button">Annuler</button>
+                    </div>
+                </div>
+                <div class="form-group"></div>
+            </div>
+        }
+        <div class="row">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th>Ref.</th>
+                        <th>Qte</th>
+                        <th>Pu</th>
+                        <th>Montant</th>
+                        <th>Rem</th>
+                        <th>RDg</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach:lignevente">
+                    <tr>
+                        <td data-bind="text:refprod"></td>
+                        <td data-bind="text:qte"></td>
+                        <td data-bind="text:price"></td>
+                        <td data-bind="text:montant"></td>
+                        <td data-bind="text:rem"></td>
+                        <td data-bind="text:remdg"></td>
+                        <td >
+                           <!-- <span class="text-primary" data-bind="click:$parent.editItem" style="cursor:pointer"><i class="glyphicon glyphicon-edit"></i></span> | -->
+                            <span class="text-danger" data-bind="click:$parent.removeItem" style="cursor:pointer"><i class="glyphicon glyphicon-remove-circle"></i></span>  
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4">Montant total</th>
+                        <th colspan="3" data-bind="text:montanttotal"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="">
+            <fieldset>
+                <legend>Identite client</legend>
+                <div class="form-group">
+                    @Html.Label("Nom")<strong>*</strong>
+                    @Html.TextBox("Nom", null, new {@class="form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Prenom")
+                    @Html.TextBox("Prenom", null, new {@class="form-control" })
+                </div>
+                @*<div class="form-group" id="errParentAssurance">
+                    @Html.Label("Assurance") <label id="errAssurance" hidden>Veuillez choisir une assurance</label>
+                    @Html.DropDownList("AssuranceId", (SelectList)ViewBag.Assurance, "--Choisir une assurance--",new { @class="form-control"})
+                </div>*@
+            </fieldset>
+        </div>
+        <div class="">
+            <fieldset>
+                <legend>Caisse</legend>
+                <div class="form-group">
+                    <div class="pull-right">
+                        <span>Reste &agrave; payer:</span>
+                        <span><strong data-bind="text:montanttotal"></strong></span><span>F</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="btn btn-primary" data-bind="click:AddAssurance" title="Ajouter une assurance">Ajouter</button>
+                    <!--ko foreach:Assureurs -->
+                    <div>
+                        <div class="form-group">
+                            @Html.Label("Assurance") <a href="#" data-bind="click:$parent.removeAssureur" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a>
+                            @Html.DropDownList("AN[]", (SelectList)ViewBag.Assurance, "--Choisir une assurance--", new { @class = "form-control", @data_bind = "attr:{id:$index}, value:assuranceId" })
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Montant en charge")
+                            <input type="text" class="form-control" data-bind="value:montant" name="AM[]" />
+                        </div>
+                        <hr />
+                    </div>
+
+                    <!--/ko-->
+                    @*<table cellpadding="5" cellspacing="5" align="center" border="0" width="100%">
+        <tbody data-bind="foreach:Assureurs,visible:assurance() =='AS'">
+            <tr>
+                <td>@Html.DropDownList("AN[]", (SelectList)ViewBag.Assurance, "--Choisir une assurance--", new { @class = "form-control", @data_bind = "attr:{id:$index}" })</td>
+
+                <td><input type="text" class="form-control" data-bind="value:montant" name="AM[]" /></td>
+                <td><a href="#" data-bind="click:$parent.removeAssureur" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></td>
+            </tr>
+        </tbody>
+    </table>*@
+                </div>
+                @*<div class="form-group">
+                    @Html.Label("Charge assurance")
+                    @Html.TextBox("AssuranceMtt", 0, new { @class="form-control"})
+                </div>*@
+                <div class="form-group">
+                    @Html.Label("Charge client")
+                    @Html.TextBox("ClientMtt", 0, new { @class="form-control"})
+                </div>
+                <div class="form-group">
+                    @Html.Label("Reduction client")
+                    @Html.TextBox("ReductionClient", 0, new { @class = "form-control" })
+                </div>
+                <div class="form-group" id="errMttParent">
+                    @Html.Label("Montant verse") <label id="errMtt" class="" hidden>Valeur incorrect</label>
+                    @Html.TextBox("Montantverse", 0, new { @class="form-control"})
+                </div>
+                <div class="form-group">
+                    @Html.Label("Mode règlement")
+                    <select class="form-control" id="modeReglement">
+                        <option value="Espece">Esp&egrave;ce</option>
+                        <option value="Cheque">Ch&egrave;que</option>
+                        <option value="Virement">Virement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    @Html.Label("Info cheque")
+                    @Html.TextBox("RefPayement", null, new { @class="form-control"})
+                </div>
+                <div class="form-group">
+                    @Html.Label("Date")
+                    <input  type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" id="datevente" name="datevente" class="form-control"/>
+                </div>
+            </fieldset>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn" id="btn_valider" data-bind="enable:btnValider">Valider</button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    @Scripts.Render("~/Scripts/js_")
+    <script>
+        var ProductArray = [];
+        var monture = divers = verre = [];
+        var ArrayAsssureur = [];
+        //var _myCatArr = ["DIVERS", "MONTURE", "VERRE"];
+        $("#gestionVente").addClass("active");
+        $("#gestionVenteNew").addClass("active");
+        $(function () {
+            @*var urlQuery = "@Url.RouteUrl("_getListProductByCat", new { categorie = "categorie"})";*@
+           /* for (var i = 0; i < 3; i++)
+            {
+                var _url = urlQuery.replace("categorie", _myCatArr[i].toLowerCase());
+                $.ajax({
+                    url: _url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (d) {
+                        var temp  = [];
+                        if (d.Produits.length > 0) {
+                            $.each(d.Produits, function (index, val) {
+                                temp.push({ Id: val.Id, Designation: val.Designation.toLowerCase(), Prix: val.Prix, QteStock: val.QteStock, Marque: val.Marque.toLowerCase() });
+                            });
+                            switch (d.LibCat) {
+                                case "monture":
+                                    monture = temp;
+                                    break;
+                                case "verre":
+                                    verre = temp;
+                                    break;
+                                case "divers":
+                                    divers = temp;
+                                    break;
+                            }
+                            console.log(temp);
+                        }
+                    },
+                    error: function(){}
+                });
+            }*/
+        });
+
+        $.ajax({
+            url: "@Url.RouteUrl("_listeProduitCat")",
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                if (d.length > 0) {
+                    $.each(d, function (index, valeur) {
+                        vm.catprod.push({ Categorie: valeur.Categorie, Produits: valeur.Produits });
+                    }); console.log(vm.catprod);
+                    $("#jqxTree").jqxTree({ height: 'auto'/*, width: 245 */ });
+                    //$('#jqxTree').jqxTree('expandAll');
+                }
+            },
+            error: function() {}
+        });
+        //$("#jqxTree").jqxTree({ height: 'auto'/*, width: '245'*/ });
+
+        $("#jqxTree").on("select", function (e) {
+            var args = e.args;
+            var p0 = p1 = p2 = null;
+            var p0val = p1val = p2val = null;
+            vm.prodid(0);
+            vm.refprod(null);
+            vm.stock(0);
+            var item = $('#jqxTree').jqxTree('getSelectedItem');
+            if (item.parentElement != null) {
+                //recuperer le parent 2
+                var p2 = item.parentElement;
+                var p2Item = $("#jqxTree").jqxTree('getItem', p2);
+                p2val = p2Item.label;
+            }
+
+            if (p2 != null && p2Item.parentElement != null) {
+                var p1 = p2Item.parentElement;
+                var p1Item = $("#jqxTree").jqxTree('getItem', p1);
+                p1val = p1Item.label;
+            }
+
+            if (p1 != null && p1Item.parentElement != null) {
+                var p0 = p1Item.parentElement;
+                var p0Item = $("#jqxTree").jqxTree('getItem', p0);
+                p0val = p0Item.label;
+            }
+            if (p0val != null) {
+                // cas des verres
+                vm.statutVerre(true);
+                var format = item.label.substring(0, 1);
+                var nature = p1val.substring(0, 1);
+                var type = p2val.substr(0, 1);
+                var gamme = $("#Gammeverre").val();
+                var puissance = $("#Puissance").val();
+                var angle = $("#Angle").val();
+                var marque = $("#Marque").val();
+                var _designation = gamme + "(" + nature + type + format + "-[" + puissance + "]-" + angle + "°)";
+                getElementValue(verre, _designation, marque);
+            } else if (p1val != null) {
+                // cas de monture ou produit divers
+                vm.statutVerre(false);
+                /*switch (p1val.toUpperCase()) {
+                    case "DIVERS":
+                        getElementValue(divers, item.label, p2val);
+                        break;
+                    case "MONTURE":
+                        getElementValue(monture, item.label, p2val);
+                        break;
+                }*/
+                getElementValue(p1val.toUpperCase(), item.label, p2val);
+            }
+        });
+
+        /*function getElementValue(myarr, libelle, marque) {
+            //console.log(myarr);
+            //alert(libelle.toLowerCase()); alert(marque.toLowerCase());
+            for (i = 0 ; i < myarr.length; i++) {
+                //console.log("libelle base " + myarr[i].Designation + "libelle a chercher" + libelle.toLowerCase() + "Marque " + myarr[i].Marque + "Marque a chercher " + marque.toLowerCase());
+                if (myarr[i].Designation == libelle.toLowerCase() && myarr[i].Marque == marque.toLowerCase()) {
+                    vm.prodid(myarr[i].Id);
+                    vm.price(myarr[i].Prix);
+                    vm.refprod(myarr[i].Designation);
+                    vm.designation(libelle);
+                    vm.stock(myarr[i].QteStock);
+                    vm.qte(1);
+                    vm.rem(0);
+                    vm.remdg(0);
+                    break;
+                }
+            }
+        }*/
+
+        function getElementValue(Categorie, libelle, marque) {
+            //console.log(myarr);
+            //console.log(libelle);
+            //console.log(vm.catprod());
+            var vmCatLength = vm.catprod().length;
+            //console.log(libelle + ' bis');
+            for (i = 0; i < vmCatLength; i++) {
+                //console.log('i ' + i);
+                //console.log(vm.catprod()[i].Categorie);
+                if (vm.catprod()[i].Categorie.toUpperCase() == Categorie) {
+                    var prodsLength = vm.catprod()[i].Produits.length;
+                    var produits = [];
+                    produits = vm.catprod()[i].Produits;
+                    for (var j = 0; j < prodsLength; j++) {
+                        //console.log('j ' + j);
+                        //console.log(produits[j].LibMarque);
+                        if (produits[j].LibMarque.toUpperCase() == marque.toUpperCase()) {
+                            var prodMarque = [];
+                            var prodMarqueLength = produits[j].MarqueProds.length;
+                            prodMarque = produits[j].MarqueProds;
+                            for (var k = 0; k < prodMarqueLength; k++) {
+                                //console.log('k ' + k);
+                                //console.log(prodMarque[k].Designation);
+                                if (prodMarque[k].Designation.toLowerCase() == libelle.toLowerCase()) {
+                                    vm.prodid(prodMarque[k].Id);
+                                    vm.price(prodMarque[k].Prix);
+                                    vm.refprod(prodMarque[k].Designation);
+                                    vm.designation(libelle);
+                                    vm.stock(prodMarque[k].QteStock);
+                                    vm.qte(1);
+                                    vm.rem(0);
+                                    vm.remdg(0);
+                                    return;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        $("#btn_valider").click(function () {
+            var mttVerse = parseFloat($("#Montantverse").val(), 10);
+            var mttFacture = parseFloat(vm.montanttotal(), 10);
+            var chargePatient = parseFloat($("#ClientMtt").val(),10);
+            var chargeAssurance = vm.ChargeAssuranceTotal();
+            var ReductionClient = parseFloat($("#ReductionClient").val(), 10);
+
+            //console.log(vm.ListeMontantAssurance());
+            //console.log(vm.ListeAssurance());
+            //return false;
+            if (isNaN(chargePatient)) chargePatient = 0;
+            /*if (assuranceSelected == '' && chargeAssurance > 0) {
+                $("#errParentAssurance").addClass("has-error");
+                $("#errAssurance").show();
+                return false;
+            } else { $("#errAssurance").hide(); $("#errParentAssurance").removeClass("has-error"); }*/
+ 
+
+            /*if (Vm.Assureurs.length == '' && chargeAssurance == 0 && chargePatient > 0 && chargePatient - mttFacture != 0 ) {
+                $("#errMttParent").addClass("has-error");
+                $("#errMtt").show();
+                $("#Montantverse").focus();
+                return false;
+            } else { $("#errMtt").hide(); $("#errMttParent").removeClass("has-error"); }*/
+
+            /*console.log('chargeAssurance :' + chargeAssurance);
+            console.log('chargePatient :' + chargePatient);
+            console.log('mttFacture ' + mttFacture);
+            console.log((chargeAssurance + chargePatient) - mttFacture);
+            //console.log('chargeAssurance+chargePatient:  ' + (chargeAssurance + chargePatient) - mttFacture);*/
+            console.log('Compare :' +ReductionClient > chargePatient);
+            if (/*((chargeAssurance > 0 || chargePatient > 0) && */(chargeAssurance + chargePatient) - mttFacture != 0/*)*/ || ReductionClient > chargePatient) {
+                alert("Repartition des charges incorrect.");
+                $("#ClientMtt").val(0).focus();
+                return false;
+            }
+
+            if (ReductionClient > chargePatient) {
+                alert("Reduction client trop importante.");
+                $("#ReductionClient").val(0).focus();
+                return false;
+            }
+            if (!confirm("Voulez vous vraiment valider la vente?")) { return false; }
+
+            //if (isNaN(chargeAssurance)) chargeAssurance = 0;
+            
+            vm.btnValider(false);
+            $.ajax({
+                url: "@Url.RouteUrl("_addVentePoste")",
+                type:"POST",
+                data: /*JSON.stringify(*/{
+                    DateVente:$("#datevente").val(),
+                    NomClient:$('#Nom').val(),
+                    PrenomClient:$('#Prenom').val(),
+                    AN: vm.ListeAssurance(),
+                    AM: vm.ListeMontantAssurance(),
+                    MontantClient: chargePatient,
+                    ReductionClient: ReductionClient,
+                    ModePayement: $('#modeReglement').val(),
+                    MontantVerse: $("#Montantverse").val(),
+                    RefPayement: $("#RefPayement").val(),
+                    LigneVentes: vm.lignevente()
+                }/*)*/,
+                dataType: "json",
+                //contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    alertify.set('notifier','position', 'top-right');
+                    if (data.Statut == 200) {
+                        alertify.success("Operation de vente effectuée avec succès", 10);
+                        window.location = "@Url.RouteUrl("_operationVentes")";
+                    } else { alertify.error(data.Message, 10); }
+                    vm.btnValider(true);
+                },
+                error: function(){}
+            });
+      
+        });
+       
+
+        function viewModel() {
+            x = this;
+            x.prodid = ko.observable(0);
+            x.price = ko.observable(0);
+            x.refprod = ko.observable();
+            x.designation = ko.observable();
+            x.stock = ko.observable(0);
+            x.qte = ko.observable(1);
+            x.montant = ko.observable(0);
+            x.montanttotal = ko.observable(0);
+            x.lignevente = ko.observableArray([]);
+            x.rem = ko.observable(0);
+            x.remdg = ko.observable(0);
+            x.remselect = ko.observableArray(["valeur", "%"]);
+            x.remdgselect = ko.observableArray(["valeur", "%"]);
+            x.remselected = ko.observable('valeur');
+            x.remdgselected = ko.observable('valeur');
+            x.statutVerre = ko.observable(false);
+            x.btnValider = ko.observable(true);
+            x.catprod = ko.observableArray([]);
+            /*Gestion Multi Assurance*/
+            x.Assureurs = ko.observableArray([{assuranceId : null, montant: 0 }]);
+            x.AddAssurance = function () {
+                x.Assureurs.push({ assuranceId: null, montant: 0 });
+            };
+
+            x.removeAssureur = function ($parent) {
+                x.Assureurs.remove($parent);
+            };
+
+            x.ChargeAssuranceTotal = function () {
+                var mtt = 0;
+                if (x.Assureurs().length > 0) {
+                    for (var i = 0; i < x.Assureurs().length; i++) {
+                        mtt += parseFloat(x.Assureurs()[i].montant, 10);
+                    }
+                }
+                return mtt;
+            };
+
+            x.ListeAssurance = function () {
+                var arrAssureur = [];
+                if (x.Assureurs().length > 0) {
+                    for (var i = 0; i < x.Assureurs().length; i++)
+                    {
+                        arrAssureur.push(x.Assureurs()[i].assuranceId);
+                    }
+                }
+                return arrAssureur;
+            };
+
+            x.ListeMontantAssurance = function () {
+                var arrAssureur = [];
+                if (x.Assureurs().length > 0) {
+                    for (var i = 0; i < x.Assureurs().length; i++) {
+                        arrAssureur.push(x.Assureurs()[i].montant);
+                    }
+                }
+                return arrAssureur;
+            };
+
+            x.addItem = function () {
+                if (parseInt(x.qte(), 10) == 0 || x.refprod() == null) { alert("Veuillez selectionner un produit ou preciser sa quantité > 0"); return false; }
+                var eltIndex = x.itemExist();
+                console.log(eltIndex);
+                console.log(x.refprod());
+                if (eltIndex >= 0) {
+                    /*var mydialog = alertify.confirm().setting({
+                        "title": "Confirmation",
+                        "labels": {
+                            cancel: "Annuler"
+                        },
+                        //"modal": true,
+                        "closable": true,
+                        "message": "Le produit existe déjà! Voulez vous le modifier?",
+                        "onok": function () { x.removeItem(x.lignevente()[eltIndex]); },
+                        "oncancel": function () { return false;}
+                    });
+                    mydialog.show();*/
+                    
+                    if (confirm("Le produit existe déjà! Voulez vous le modifier?")) {
+                        x.removeItem(x.lignevente()[eltIndex]);
+                    } else { return false;}
+                }
+                //new item insertion
+                var valtmp = parseFloat(x.montanttotal(), 10);
+                var mttop = parseInt(x.qte(), 10) * parseFloat(x.price(), 10);
+                var remop = x.getRemValue(mttop, parseFloat(x.rem(), 10), x.remselected());
+                var rempdg = x.getRemValue(mttop, parseFloat(x.remdg(), 10), x.remdgselected());
+                var remtotal = remop + rempdg;
+                valtmp += (mttop - remtotal);
+
+                //var lignemontant = parseFloat(x.price(), 10) * parseInt(x.qte(), 10);
+                //alert();
+                x.lignevente.push({ prodid: x.prodid(), refprod: x.refprod(), designation: x.designation(), qte: x.qte(), price: x.price(), montant: mttop, rem: remop, remdg: rempdg });
+                x.montanttotal(valtmp);
+            };
+
+            x.editItem = function ($parent) {
+                console.log($parent);
+                x.prodid($parent.prodid);
+                x.refprod($parent.refprod);
+                x.qte($parent.qte);
+                var relprice = parseFloat($parent.montant, 10) / parseInt($parent.qte, 10);
+                x.price(relprice);
+                x.remdgselected('valeur');
+                x.remdgselected('valeur');
+                x.rem($parent.rem);
+                x.remdg($parent.remdg);
+                var prodStock = x.getStock();
+                x.stock(prodStock);
+                
+            };
+
+            x.getStock = function () {
+                for (var i = 0; i < ProductArray.length; i++) {
+                    if (ProductArray[i].Id == x.prodid()) {
+                        return ProductArray[i].QteStock;
+                    }
+                }
+            }
+
+            x.removeItem = function ($parent) {
+                //if (x.lignevente().length > 0) {
+                    //var eltToDel = x.lignevente()[index];
+                    var mttup = x.montanttotal() - ($parent.montant - ($parent.rem + $parent.remdg));
+                    x.montanttotal(mttup);
+                    x.lignevente.remove($parent);
+                //}
+            };
+
+            x.itemExist = function () {
+                if (x.lignevente().length > 0) {
+                    for (i = 0; i < x.lignevente().length; i++) {
+                        if (x.lignevente()[i].prodid == x.prodid()) {
+                            return i;
+                        }
+                    }
+                }
+                return -1;
+            };
+
+            x.getRemValue = function (m, r, t) {
+                var temp = 0;
+                switch (t) {
+                    case '%':
+                        if (r > 0) { temp = m * (r / 100); }
+                        break;
+                    case 'valeur':
+                        if (r > 0) { temp = r; }
+                        break;
+                }
+                return temp;
+            };
+
+            x.checkValue = function (srcrem) {
+                switch (srcrem) {
+                    case "rem":
+                        if (x.remselected() == '%' && parseFloat(x.rem()) > 100) { x.rem(0); }
+                        break;
+                    case "remdg":
+                        if (x.remdgselected() == '%' && parseFloat(x.remdg()) > 100) { x.remdg(0); }
+                        break;
+                }
+            };
+
+        }
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>    
+}

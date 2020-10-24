@@ -1,0 +1,116 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Produits
+}
+
+@section filedeNavigation{
+    <li><a href="#">produits</a></li>
+    <li class="active">liste des produits</li>
+}
+
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<div class="row">
+
+</div>
+<div class="row">
+    <p>
+        <a class="btn btn-primary" href="@Url.RouteUrl("_addProduit")">Ajouter</a>
+    </p>
+    <div id="prodGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var source = {
+                datatype: "json",
+                datafields: [
+                    { name: "Designation", type: 'string' },
+                    { name: "Categorie", type: 'string' },
+                    { name: "Marque", type: 'string' },
+                    { name: "QteStock", type: 'int' },
+                    { name: "Id", type:'int'}
+                ],
+                id:'Id',
+                url: "@Url.RouteUrl("_getAllproducts")"
+            };
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            var cellrender = function (row, column, value, rowData) {
+                var update, del, stock;
+                update = '<a href="@Url.RouteUrl("_updateProduit", new { id = "id" })" title="editer une marque"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;';
+                stock = '<a href="@Url.RouteUrl("_listeStock", new { id = "id" })" title="mouvement de stock"><i class="glyphicon glyphicon-th"></i></a>&nbsp;&nbsp;';
+                del = '<a href="#" title="supprimer un produit" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a>';
+                var ch = update +" | " + stock + " | " + del;
+                return ch.replace(/id/gi, value);
+            };
+            var getLocalization = function () {
+                var localizationobj = {};
+                localizationobj.pagerGoToPageString = "Page :";
+                localizationobj.pagershowrowsstring = "Ligne:";
+                localizationobj.pagerrangestring = " sur ";
+                localizationobj.pagerNextButtonString = "Suivant";
+                localizationobj.loadtext = "Chargement...";
+                localizationobj.filterSearchString = "Recherche:";
+                localizationobj.pagerPreviousButtonString = "Precedent";
+                return localizationobj;
+            };
+            //init jqxtable energyblue summer shinyblack
+            $("#prodGrid").jqxDataTable({
+                width: '100%',
+                theme: 'darkblue',
+                source: dataAdapter,
+                pageable: true,
+                filterable: true,
+                groups: ['Categorie'],
+                //filterMode: 'simple',
+                altRows: true,
+                pageSize: 20,
+                pagerMode: 'advanced',
+                sortable: true,
+                columnsResize: true,
+                pageSizeOptions: ['5', '10', '20', '25', '30', '35', '40'],
+                columnsResize: true,
+                localization: getLocalization(),
+                //agregate
+                showAggregates: true,
+                aggregatesHeight: 25,
+                autoRowHeight: false,
+                //groupping
+                groupsRenderer: function (value, rowData, level) {
+                    return "<strong>Categorie : " + value+"</strong>";
+                },
+                columns: [
+                    { text: 'Categorie', hidden: true, cellsAlign: 'left', align: 'left', dataField: 'Categorie'/*, width: 280 */ },
+                    { text: "Designation", datafield: "Designation"/*, width:"10%"*/ },
+                    { text: "Marque", datafield: "Marque", align: 'center', cellsAlign: 'center', width: "15%" },
+                    {
+                        text: "QteStock", datafield: "QteStock", /*cellsFormat: 'n',*/ align: 'center', cellsAlign: 'center', width: "10%",
+                        aggregates: [{
+                            'Total': function (aggregatedValue, currentValue, column, record)
+                                {
+                                    return aggregatedValue + currentValue;
+                                }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var tot = isNaN(aggregates.Total) ? 0 : new Intl.NumberFormat("fr-FR").format(aggregates.Total);
+                            renderString += "<strong>Total : </strong>" + tot + "</div>";
+                            return renderString;
+                        }
+                    },
+                    { text: "", datafield: "Id", width: "15%", cellsAlign: 'center', sortable :false,cellsRenderer: cellrender, filterable :false }
+                ]
+            });
+            $("#indexProduit").addClass("active");
+            $("#listeProduit").addClass("active");
+        });
+    </script>
+}
+

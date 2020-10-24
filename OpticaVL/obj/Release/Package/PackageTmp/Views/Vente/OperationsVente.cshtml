@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewBag.Title = "OperationsVente";
+}
+
+@section NavigationTitle{
+    Vente
+}
+
+@section filedeNavigation{
+    <li><a href="#">vente</a></li>
+    <li class="active">liste des operations de vente</li>
+}
+
+<div class="row">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class="form-inline"}))
+    {
+        <div class="form-group">
+            @Html.Label("Debut")
+            <input name="Deb" type="date" id="Deb" class="form-control" value="@ViewBag.Date" />
+        </div>
+        <div class="form-group">
+            @Html.Label("Fin")
+            <input name="End" type="date" id="End" value="@ViewBag.Date" class="form-control" />
+        </div> 
+        <div class="form-group">
+            <button class="btn btn-default" type="button" onclick="getOpVente();" id="btn_Valider">Valider</button>
+        </div> 
+    }
+</div>
+
+<div class="row">
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ref</th>
+                <th>Details vente</th>
+                <th>Identite client</th>
+                <th>Montant</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:opArr">
+            <tr data-bind="css:{'danger': StatutDel}">
+                <td data-bind="text:Date"></td>
+                <td data-bind="text:RefVente"></td>
+                <td>
+                    <ul data-bind="foreach:DetailsVente">
+                        <li>
+                            <strong><em><span data-bind="text:Designation"></span></em></strong> &nbsp; X
+                            <strong><em><span data-bind="text:Qte"></span></em></strong> &nbsp; &nbsp;
+                            <strong data-bind="visible:Marque != 'Sans marque'"><em><span>Marque: </span><span data-bind="text:Marque"></span></em></strong>
+                        </li>
+                    </ul>
+                </td>
+                <td data-bind="text:Identite"></td>
+                <td data-bind="text:Montant"></td>
+                <td>
+                    <span data-bind="visible: !StatutDel"><a href="#" data-bind="attr:{href:UpdateUrl}"><i class="glyphicon glyphicon-edit"></i></a> | </span>
+                    <!--<span><a href="#" data-bind="attr:{href:PayeUrl}"><i class="glyphicon glyphicon-usd"></i></a></span> |-->
+                    <!-- ko foreach:assurances -->
+                        <span>
+                            <a href="#" data-bind="click:$parents[1].printFacture" title="Imprimer une facture d'assurance">
+                                <i class="glyphicon glyphicon-print"></i>
+                                <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:waitprint}" hidden /> <span data-bind="visible:sepa">|</span>
+                            </a>
+                        </span>
+                    <!-- /ko -->
+                    <span data-bind="visible: !StatutDel">
+                        <a href="#" class="text-danger" data-bind="click:$parent.removeItem"><i class="glyphicon glyphicon-remove-circle"></i></a>
+                        <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:DelWait}" hidden />
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script>
+    $("#gestionVente").addClass("active");
+    $("#opVente").addClass("active");
+
+    var UpdateUrl = "@Url.RouteUrl("_updatePosteVente", new{id = "id"})",
+        PayeUrl = "@Url.RouteUrl("_addPayement", new { id = "id", type="vente"})",
+        PrintFacture = "@Url.RouteUrl("_generateFactureVente", new { id="id"})";
+
+    $("#btn_Valider").click();
+    function getOpVente() {
+        $.ajax({
+            url: "@Url.RouteUrl("_operationQvente")",
+            type:"GET",
+            data: {Deb: $("#Deb").val(), End:$("#End").val()},
+            dataType: "json",
+            success: function (d) {
+                vm.opArr.removeAll();
+                console.log(d);
+                if (d.length > 0) {
+                    $.each(d, function (i, val) {
+                        console.log(val.Nom);
+                        var _mtt = new Intl.NumberFormat("fr-FR").format(val.Montant)
+                        var identite = val.Nom;
+                        if (val.Prenom != null) identite += " " + val.Prenom;
+                        var _urlUp = UpdateUrl.replace('id',val.Id);
+                        var _payeUrl = PayeUrl.replace('id', val.Id);
+                        var _printUrl = PrintFacture.replace('id', val.Id);
+                        var waitDel = "waitdel_" + val.Id;
+                        //var waitPrint = "waitprint_" + val.Id;
+                        var assurances = [];
+                        $.each(val.Assurances, function (x, v) {
+                            var assurlength = val.Assurances.length;
+                            if (assurlength > 0) {
+                                var sepa = x < assurlength;
+                                var waitPrint = "waitprint_" + val.Id+''+v;
+                                assurances.push({ idAssur: v, idFacture: val.Id, sepa: sepa, waitprint: waitPrint });
+                            }
+                        });
+                        vm.opArr.push({ Id: val.Id, RefVente: val.RefVente, Identite: identite, Montant: _mtt, StatutDel: val.StatutDel, DetailsVente: val.DetailsVente, Date: val.Date, UpdateUrl: _urlUp, PayeUrl: _payeUrl, PrintUrl: _printUrl, DelWait: waitDel, assurances: assurances});
+                    });
+                }
+                console.log(vm.opArr());
+            },
+            error: function () { }
+        });
+    }
+
+
+    var viewModel = function() {
+        var x = this;
+        x.opArr = ko.observableArray([]);
+
+        x.removeItem = function ($parent) {
+            if (!confirm("Voulez-vous vraiment annuler la vente?")) { return false; }
+            $("#" + $parent.DelWait).show();
+            var removeUrl = "@Url.RouteUrl("_annulerVente", new { id = "id" })";
+                removeUrl = removeUrl.replace("id", $parent.Id);
+                alertify.set('notifier', 'position', 'top-right');
+                alertify.set('notifier', 'delay', 7);
+                $.ajax({
+                    url: removeUrl,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (d) {
+                        $("#" + $parent.DelWait).hide(); 
+                        if (d.Statut == 200) {
+                            alertify.success("Operation de suppression effectuée avec succès");
+                            x.opArr.remove($parent);
+                        }
+                        else {
+                            $("#" + $parent.DelWait).hide();
+                            alertify.error(d.Message);
+                        }      
+                    },
+                    error: function () { }
+                });
+        };
+
+            x.printFacture = function ($parent) {
+                var _url = "@Url.RouteUrl("_generateFactureVente", new { id="id", assurance="assurance"})";
+                $("#" + $parent.waitprint).show();
+                _url = _url.replace("id", $parent.idFacture).replace("assurance", $parent.idAssur);
+                $.ajax({
+                    url: _url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (d) {
+                        $("#" + $parent.waitprint).hide();
+                        if (d.statut == "OK")
+                            window.open("../../DataDir/Facturevente.pdf", "_blank");
+                    },
+                    error: function () {
+                        $("#" + $parent.PrintWait).hide();
+                        alertify.error("Une erreur s'est produite lors de la generation de la facture");
+                    }
+                });
+            }
+        };
+        vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>
+   
+    }

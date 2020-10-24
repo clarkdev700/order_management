@@ -1,0 +1,32 @@
+﻿@model List<OpticaVL.Models.Assurance>
+
+<div class="row">
+    <p>
+        <a class="btn btn-primary" href="@Url.RouteUrl("_addAssurance")">Ajouter</a>
+    </p>
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.Code.ToUpper()</td>
+                    <td>@a.Nom.ToUpper()</td>
+                    <td>
+                        <span><a href="@Url.RouteUrl("_updatePostAssurance", new { id = a.Id})"><i class="glyphicon glyphicon-edit"></i></a></span> |
+                        <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+
+

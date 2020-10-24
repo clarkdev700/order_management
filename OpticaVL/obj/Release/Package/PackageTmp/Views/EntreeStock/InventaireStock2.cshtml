@@ -1,0 +1,133 @@
+﻿
+@{
+    ViewBag.Title = "InventaireStock";
+}
+
+@section NavigationTitle{
+    Stock
+}
+
+@section filedeNavigation{
+    <li class="active">Inventaire</li>
+}
+
+
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<h4>Inventaire du stock du @DateTime.Now.ToString("dd/MM/yyyy")</h4>
+<div class="row">
+    <div id="stockGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+        function formatNumber(value) { return new Intl.NumberFormat("fr-FR").format(value); }
+
+        $(document).ready(function () {
+            var source = {
+                datatype: "json",
+                datafields: [
+                    { name: "Designation", type: 'string' },
+                    { name: "Categorie", type: 'string' },
+                    { name: "Marque", type: 'string' },
+                    { name: "QteStock", type: 'int' },
+                    { name: "Prix", type: "float" },
+                    { name: "Id", type: 'int' }
+                ],
+                id:'Id',
+                url: "@Url.RouteUrl("_getInventaire")"
+            };
+            
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            var cellrender = function (row, column, value, rowData) {
+                //console.log(rowData.Id + " " + rowData.Prix + " " + rowData.QteStock);
+                var ssMtt = rowData.Prix * rowData.QteStock;
+                //console.log(ssMtt);
+                var _ssMtt = formatNumber(ssMtt);
+                return '<span>' + _ssMtt + '</span>';//"";//rowData.Prix * rowData.QteStock;
+            };
+            var getLocalization = function () {
+                var localizationobj = {};
+                localizationobj.pagerGoToPageString = "Page :";
+                localizationobj.pagershowrowsstring = "Ligne:";
+                localizationobj.pagerrangestring = " sur ";
+                localizationobj.pagerNextButtonString = "Suivant";
+                localizationobj.loadtext = "Chargement...";
+                localizationobj.filterSearchString = "Recherche:";
+                localizationobj.pagerPreviousButtonString = "Precedent";
+                return localizationobj;
+            };
+            //init jqxtable
+            $("#stockGrid").jqxDataTable({
+                width: '100%',
+                theme: 'darkblue',
+                source: dataAdapter,
+                pageable: true,
+                filterable: true,
+                groups: ['Categorie'],
+                //filterMode: 'simple',
+                altRows: true,
+                pageSize: 20,
+                pageSizeOptions:['5','10','20','25','30','35','40'],
+                pagerMode: 'advanced',
+                sortable: true,
+                columnsResize: true,
+                localization: getLocalization(),
+                //agregate
+                showAggregates: true,
+                aggregatesHeight: 30,
+                autoRowHeight: false,
+                //groupping
+                groupsRenderer: function (value, rowData, level) {
+                    return "<strong> Categorie : " + value + "</strong>";
+                },
+                columns: [
+                    { text: 'Categorie', hidden: true, cellsAlign: 'left', align: 'left', dataField: 'Categorie'/*, width: 280 */ },
+                    { text: "Designation", datafield: "Designation", align: 'center',/*, width:"10%"*/ },
+                    { text: "Marque", datafield: "Marque", align: 'center', cellsAlign: 'center', width: "20%" },
+                    {
+                        text: "Qte", datafield: "QteStock"/*, cellsFormat: 'n'*/, align: 'center', cellsAlign: 'center', width: "10%", aggregates: [{
+                            'QteTot': function (aggregatedValue, currentValue, column, record) {
+                                return aggregatedValue + parseInt(record['QteStock'], 10);
+                            }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var nbreTot = formatNumber(aggregates.QteTot);
+                            renderString += "<strong>Nbre: </strong>" + nbreTot + "</div>";
+                            return renderString;
+                        }
+                    },
+                    {
+                        text: "Prix", datafield: "Prix", align: 'center', cellsAlign: 'right', width: "15%",
+                        cellsRenderer: function (row, column, value, rowData) {
+                            var _mtt = formatNumber(value);
+                            return '<span>'+ _mtt +'</span>';
+                        }
+                    },
+                    {
+                        text: "Montant", datafield: "Id", width: "15%", align: 'center', cellsAlign: 'right', sortable: false, cellsRenderer: cellrender, filterable: true, aggregates: [{
+                            'Total':
+                                function (aggregatedValue, currentValue, column, record) {
+                                    //console.log(record['QteStock'] + " " + record['Prix']);
+                                    var total = parseFloat(record['Prix']) * parseInt(record['QteStock']);
+                                    return aggregatedValue + total;
+                                }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var mttFormat = formatNumber(aggregates.Total);
+                            renderString += "<strong>Total: </strong>" + mttFormat + "</div>";
+                            return renderString;
+                        }
+                    }
+                ]
+            });
+            $("#Stock").addClass("active");
+            $("#inventaireStock").addClass("active");
+        });
+    </script>
+}

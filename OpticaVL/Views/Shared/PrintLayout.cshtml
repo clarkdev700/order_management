@@ -1,0 +1,34 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>PrintLayout</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .pmarge {
+            margin-bottom: 15px;
+        }
+        .pad {
+            padding-left: 30px;
+        }
+    </style>
+</head>
+<body style="color:black;">
+    <div class="container-fluid">
+        <div class="col-md-12" style="">, <!--'Arial Rounded MT', 'Arial Unicode MS'-->
+            <div class="row" style="font-family: 'Arial Narrow'; ">
+                @RenderBody()
+            </div>
+        </div> 
+        
+    </div>
+</body>
+</html>

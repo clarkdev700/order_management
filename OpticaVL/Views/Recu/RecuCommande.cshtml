@@ -1,0 +1,151 @@
+﻿@model OpticaVL.ViewModel.RecuViewModel
+@{
+    ViewBag.Title = "RecuCommande";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+}
+
+@{float TotalRem = 0, TotalMtt = 0; }
+
+<div class="row">
+    @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+</div>
+
+@*<div class="row pull-right">
+    <span>Lomé, le @DateTime.Now.ToString("dd/MM/yyyy")</span>
+</div>*@
+
+<div class="row text-center">
+    <h4><u><strong>Re&ccedil;u N&ordm; @Model.NumeroRecu</strong></u></h4>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <span class="col-xs-5">Nom :</span>
+                    <span>@Model.Nom</span>
+                </div>
+                <div class="row">
+                    <span class="col-xs-5">Prenom :</span>
+                    <span>@Model.Prenom</span>
+                </div>
+                <div class="row">
+                    <span class="col-xs-5">Contact :</span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <table class="table table-bordered table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Designation</th>
+                        <th>Qte</th>
+                        <th>Pu</th>
+                        <th>Remise</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lf in Model.LigneFacture)
+                    {
+                        TotalRem += lf.Rem;
+                        TotalMtt += lf.Prix * lf.Qte;
+                        <tr>
+                            <td>@lf.Designation</td>
+                            <td>@lf.Qte</td>
+                            <td>@lf.Prix</td>
+                            <td>@lf.Rem</td>
+                            <td>@lf.Montant</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr><th colspan="3">Montant </th><th colspan="2">@(Model.MttAssur + Model.MttClient)</th></tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="row">
+                    <span class="col-xs-7">Charge Assurance :</span>
+                    <span>@Model.MttAssur</span>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <div class="row">
+                    <span class="col-xs-6">Charge Client :</span>
+                    <span>@Model.MttClient</span>
+                </div>
+            </div>
+        </div>
+    </div> <!-- Zone 1 -->
+
+    <div class="col-md-1"></div>
+    <div class="col-md-3" style="">
+        <div class="row">
+            <span class="col-xs-7">Mtt vers&eacute; :</span>
+            <span>@Model.MttVerse</span>
+        </div>
+        <div class="row">
+            <span class="col-xs-7">Reste &agrave; payer :</span>
+            <span>@Model.MttResteApayer</span>
+        </div>
+        <div class="row">
+        @if (Model.HReglements.Count > 0)
+        {
+            <h5><u>Historique de r&egrave;glement(FCFA)</u></h5>
+            <ul style="list-style:none; margin-left:-45px;">
+                @foreach (var hr in Model.HReglements)
+                {
+                    <li>
+                        <span class="col-xs-4">@hr.Date</span>
+                        <span class="col-xs-5">@hr.Montant</span>
+                        <span>(@hr.Mregl)</span>
+                    </li>
+                }
+            </ul>
+        }
+        </div> <!---->
+    </div> <!-- Zone 2-->
+
+</div>
+
+
+
+@*<div class="row">
+    <div class="col-sm-5">
+        <div class="row">
+            <span class="col-sm-4">Mtt Total :</span>
+            <span>@TotalMtt</span>
+        </div>
+        <div class="row">
+            <span class="col-sm-4">Remise :</span>
+            <span>@TotalRem</span>
+        </div>
+        <div class="row">
+            <span class="col-sm-4">Mtt D&ucirc; :</span>
+            <span>@(TotalMtt - TotalRem)</span>
+        </div>
+    </div>
+
+    <div class="col-sm-5">
+        <div class="row">
+            <span class="col-sm-4">Mtt Vers&eacute; :</span>
+            <span>@Model.MttVerse</span>
+        </div>
+        <div class="row">
+            <span class="col-sm-4">Reste à payer:</span>
+            <span>@Model.MttResteApayer</span>
+        </div>
+    </div>
+</div>*@
+
+<div class="row">
+    <h4>Signature</h4>
+</div>
+
+

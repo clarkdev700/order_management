@@ -1,0 +1,591 @@
+﻿@model OpticaVL.ViewModel.ProformaModel
+@{
+    ViewBag.Title = "Proforma";
+}
+
+@section headerStyle {
+    <style type="text/css">
+        hr
+        {
+            border-top:1px solid;
+            margin-top:5px;
+            margin-bottom:10px;
+        }
+
+        .ssTitle
+        {
+            margin-top:45px;
+            margin-bottom:0px;
+        }
+        .sm4 
+        {
+            margin-bottom: 10px;
+        }
+        .chkPadd {
+            padding-top: 30px;
+        }
+    </style>
+    }
+
+@section NavigationTitle{
+    Commande
+}
+
+@section filedeNavigation{
+    <li><a href="#">commandes</a></li>
+    <li class="active">etablir un pro forma</li>
+}
+
+<div class="row">
+    <a href="@Url.RouteUrl("_addCommandeProforma")" class="btn btn-default btn-sm pull-left">Nouveau</a>
+</div>
+<div class="row">
+    <p class="pull-right">
+        <a class="btn btn-primary" href="#" id="printFacture" target="_blank" title="Imprimer la facture pro format" data-bind="visible:print"><i class="glyphicon glyphicon-print"> Imprimer</i></a>
+    </p>
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class = "" }))
+{
+    <fieldset style="margin-top:15px;">
+        <legend style="border-bottom:1px solid;">INFORMATION DU CLIENT</legend>
+        <div class="form-group">
+            <div class="col-md-6">
+               <label for="assure" style="">
+                    <input type="radio" class="radio-inline" id="assure" name="assurance" style="margin:0 0;" data-bind="checked:assurance" value="AS" />
+                    Assur&eacute;(e)
+                </label><br />
+                <label for="non_assure" style="">
+                    <input type="radio" class="radio-inline" value="NAS" id="non_assure" name="assurance" style="margin:0 0;" data-bind="checked:assurance" />
+                    Non Assur&eacute;(e)
+                </label>
+            </div>
+            @*<div class="col-md-6" data-bind="visible:assurance()=='AS'">
+                @Html.Label("Assurance")
+                @Html.TextBox("Assurance", null, new { @class="form-control"})
+            </div>*@
+            <div class="col-md-12" data-bind="visible:assurance()=='AS'"></div>
+            <div class="col-md-12" data-bind="visible:assurance()=='NAS'"></div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3">
+                @Html.Label("Titre")<strong>*</strong>
+                <select class="form-control" id="Civilite">
+                    <option value="M">M</option>
+                    <option value="Mme">Mme</option>
+                    <option value="Mlle">Mlle</option>
+                </select>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-6" data-bind="visible:assurance()=='AS'">
+                @Html.Label("Assurance")
+                @Html.TextBox("Assurance", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-10"></div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-6">
+                @Html.Label("Nom")<strong>*</strong>
+                @Html.TextBox("Nom", Model.Nom, new { @class = "form-control" })
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Prenom")<strong>*</strong>
+                @Html.TextBox("Prenom", Model.Prenom, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-6">
+                @Html.Label("Contact")<strong>*</strong>
+                @Html.TextBox("Contact", Model.Contact, new { @class = "form-control" })
+            </div>
+            <div class="col-md-6">
+                @Html.Label("Email")
+                @Html.TextBox("Email", Model.Email, new { @class = "form-control" })
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset style="margin-top:15px;">
+        <legend style="border-bottom:1px solid;">MONTURE</legend>
+        <div class="form-group">
+            <div class="col-md-5">
+                @Html.Label("Monture")<strong>*</strong>
+                @Html.TextBox("Reference", Model.Monture.Reference, new { @class = "form-control" })
+                <!--<select class="form-control" name="" id="" data-bind="options:listeMonture, optionsText:'libelle', value:montureVal, event:{change:SelectedMontureChange}">                        </select>-->
+            </div>
+            <div class="col-md-5">
+                @Html.Label("Reference")<strong>*</strong>
+                @Html.TextBox("Numero", Model.Monture.Reference, new { @class = "form-control" })
+                <!--<select class="form-control" name="" id="" data-bind="options:listeMonture, optionsText:'libelle', value:montureVal, event:{change:SelectedMontureChange}">                        </select>-->
+            </div>
+            <div class="col-md-2">
+                @Html.Label("Qte")<strong>*</strong>
+                @Html.TextBox("QteMonture", 1, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-5">
+                @Html.Label("Prix")
+                @Html.TextBox("PrixMonture", 0, new { @class = "form-control", @data_bind = "value:prixMonture" })
+            </div>
+            <div class="col-md-5">
+                @Html.Label("Remise")<strong>*</strong>
+                @Html.TextBox("Monture.Remise", Model.Monture.Remise, new { @class = "form-control", @data_bind = "value:remMonture, event:{blur:checkValue('remMonture')}" })
+            </div>
+            <div class="col-md-2">
+                @Html.Label("Taux")
+                <select class="form-control" name="" id="" data-bind="options:typeMonture, value:remMontureVal, event:{change:checkValue('remMonture')}">                        </select>
+            </div>
+        </div>
+    </fieldset>
+
+        <fieldset style="margin-top:15px;">
+            <legend style="border-bottom:1px solid;">VERRES</legend>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <h4><strong>OD</strong></h4>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VL</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("VLSphOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("VLCyclOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("VLAxeOD", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VP</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("VPSphOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("VPCyclOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("VPAxeOD", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Addition")
+                            @Html.TextBox("AddOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Type verre")
+                            @Html.TextBox("VerreOD", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Qte")
+                            @Html.TextBox("QteOD", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Prix")
+                            @Html.TextBox("PrixOD", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise")
+                            @*Html.TextBox("RemOD", null, new { @class = "form-control" })*@
+                            @Html.TextBox("RemOD", 0, new { @class = "form-control", @data_bind = "value:remVerreOD, event:{blur:checkValue('remVerreOD')}" })
+
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreOD, value:remVerreValOD, event:{change:checkValue('remVerreOD')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*Html.Label("Montant")
+                            @Html.TextBox("MTTOD", null, new { @class = "form-control" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4><strong>OG</strong></h4>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VL</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("VLSphOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("VLCyclOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("VLAxeOG", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VP</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("VPSphOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("VPCyclOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("VPAxeOG", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Addition")
+                            @Html.TextBox("AddOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Type verre")
+                            @Html.TextBox("VerreOG", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Qte")
+                            @Html.TextBox("QteOG", null, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Prix")
+                            @Html.TextBox("PrixOG", null, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise")
+                            @*Html.TextBox("RemOG", null, new { @class = "form-control" })*@
+                            @Html.TextBox("RemOG", 0, new { @class = "form-control", @data_bind = "value:remVerreOG, event:{blur:checkValue('remVerreOG')}" })
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreOG, value:remVerreValOG, event:{change:checkValue('remVerreOG')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*Html.Label("Montant")
+                            @Html.TextBox("MTTOG", null, new { @class = "form-control" })*@
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            @*<h4 class="ssTitle"><em><strong>Nature</strong></em></h4>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-6" style="margin-bottom:15px;">
+                    @Html.Label("Addition")
+                    @Html.TextBox("Addition", null, new { @class = "form-control" })
+                </div>
+                <div class="col-md-6" style="margin-bottom:15px;">
+                    @Html.Label("Teinte")
+                    @Html.TextBox("Teinte", null, new { @class = "form-control" })
+                </div>
+            </div>*@
+            <h4 class="ssTitle"><em><strong>Nature</strong></em></h4>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-4" style="margin-bottom:15px;">
+                    @Html.Label("Teinte")
+                    @Html.TextBox("Teinte", null, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="" id="Organique" /><strong>Organique</strong>
+                    </label>
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="" id="Transition" /><strong>Transition</strong>
+                    </label>
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="" id="Polycarbonate" /><strong>Polycarbonate</strong>
+                    </label>
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="" id="Mineraux" /><strong>Min&eacute;raux</strong>
+                    </label>
+                </div>
+            </div>
+            @*<h4 class="ssTitle"><em><strong> Co&ucirc;t</strong></em> </h4>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-6">
+                    @Html.Label("Verre")<strong>*</strong>
+                    @Html.TextBox("Designation", null, new { @class = "form-control" })
+                </div>
+                <div class="col-md-6">
+                    @Html.Label("Prix")
+                    @Html.TextBox("PrixVerre", 0, new { @class = "form-control" })
+                </div>
+            </div>*@
+           @* <div class="form-group" style="margin-bottom:15px;">
+                <div class="col-md-6">
+                    @Html.Label("Qte")<strong>*</strong>
+                    @Html.TextBox("QteVerre", 1, new { @class = "form-control" })
+                </div>
+                <div class="col-md-6" style="margin-bottom:15px;">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            @Html.Label("Remise")<strong>*</strong>
+                            @Html.TextBox("RemiseVerre", 0, new { @class = "form-control", @data_bind = "value:remVerre, event:{blur:checkValue('remVerre')}" })
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerre, value:remVerreVal, event:{change:checkValue('remVerre')}"></select>
+                        </div>
+                    </div> 
+                </div>
+            </div>*@
+        </fieldset>
+        <div class="form-group">
+            
+            <button class="btn btn-default" onclick="SaveProforma();" type="button">Enregistrer</button>
+            <img src="~/DataDir/ajax-loader.gif" data-bind="visible:factStatut" class="pull-right" />
+            <a id="topPage" href="#printFacture" data-bind="visible:hpg" class="pull-right btn btn-link btn-default"><i class="glyphicon glyphicon-chevron-up"></i>Haut de page</a>
+        </div>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $("#indexGestionCommande").addClass("active");
+        $("#addproforma").addClass("active");
+       function CheckValue()
+        {
+            var x = this;
+            x.print = ko.observable(false);
+            x.valider = ko.observable(true);
+            x.remVerreOG = ko.observable(0);
+            x.remMonture = ko.observable(0);
+            x.remVerreOD = ko.observable(0);
+            x.typeVerreOD = ko.observableArray(["valeur", "%"]);
+            x.typeVerreOG = ko.observableArray(["valeur", "%"]);
+            x.typeMonture = ko.observableArray(["valeur", "%"]);
+            x.remMontureVal = ko.observable();
+            x.remVerreVal = ko.observable();
+            x.remVerreValOG = ko.observable();
+            x.remVerreValOD = ko.observable();
+            x.listeMonture = ko.observableArray([]);
+            x.montureVal = ko.observable();
+            x.prixMonture = ko.observable(0);
+            x.hpg = ko.observable(false);
+            x.assurance = ko.observable("NAS");
+            x.factStatut = ko.observable(false);
+            x.checkValue = function (srcrem) {
+               
+                switch (srcrem) {
+                    case "remMonture":
+                        /*alert(parseFloat(x.remMonture()) > 100);
+                        alert(x.remMontureVal());*/
+                        if (x.remMontureVal() == '%' && parseFloat(x.remMonture()) > 100) {
+                            x.remMonture(0);
+                        }
+                        break;
+                    case "remVerreOD":
+                        if (x.remVerreValOD() == '%' && parseFloat(x.remVerreOD()) > 100) {
+                            x.remVerreOD(0);
+                        }
+                        break;
+                    case "remVerreOG":
+                        if (x.remVerreValOG() == '%' && parseFloat(x.remVerreOG()) > 100) {
+                            x.remVerreOG(0);
+                        }
+                        break;
+                }
+            };
+
+            x.getRemValue = function (m, r, t) {
+                var temp = 0;
+                switch (t) {
+                    case '%':
+                        if (r > 0) {
+                            temp = m * (r / 100); //m * (1 - (t / 100));
+                        }
+                        break;
+                    case 'valeur':
+                        if (r > 0) {
+                            temp = r;
+                        }
+                        break;
+                }
+                return temp;
+            };
+
+            x.SelectedMontureChange = function () {
+                console.log(x.montureVal().libelle);
+                console.log(x.montureVal().prix);
+                x.prixMonture(x.montureVal().prix);
+                /*var index = x.listeMonture.indexOf(x.montureVal());
+                alert(index);
+                alert(x.listeMonture.length);
+                console.log(x.listeMonture[index]);
+                if (index >= 0 && x.listeMonture.length > 0) x.prixMonture(x.listeMonture[index].prix);
+                alert(x.prixMonture());*/
+            };
+       }
+
+       $(function () {
+           $("div .box").css({ "background-color": "#a7def9" });//#56b9ea
+           @*$.ajax({
+               url: "@Url.RouteUrl("_GetCatProd", new { cat = "monture"})",
+               type: "GET",
+               dataType: "json",
+               success: function (d) {
+                   if (d.length > 0)
+                   {
+                       $.each(d, function (i, val) {
+                           vm.listeMonture.push({ libelle: val.RefMarque, prix : val.Prix});
+                       });
+                   }
+                   console.log(vm.listeMonture());
+               },
+               error: function () { }
+           });*@
+       })
+
+       @*function GetMonture()
+       {
+           $.ajax({
+               url: "@Url.RouteUrl("_GetCatProd", new { cat = "monture"})",
+               type: "GET",
+               dataType: "json",
+               success: function (d) {
+                   if (d.length > 0)
+                   {
+                       $.each(d, function (i, val) {
+                           vm.listeMonture.push({ libelle: val.RefMarque, prix : val.prix});
+                       });
+                   }
+                   console.log(listeMonture);
+               },
+               error: function () { }
+           });
+       }*@
+
+        function ConvertChaine(ch)
+        {
+            console.log(ch.replace(".", ","));
+            return ch.replace(".", ",");
+        }
+
+        function SaveProforma() {
+
+            var remMonture = vm.getRemValue($("#PrixMonture").val(), parseFloat(vm.remMonture(), 10), vm.remMontureVal());
+            var remVerreOD = vm.getRemValue($("#PrixOD").val(), parseFloat(vm.remVerreOD(), 10), vm.remVerreValOD());
+            var remVerreOG = vm.getRemValue($("#PrixOG").val(), parseFloat(vm.remVerreOG(), 10), vm.remVerreValOG());
+            /*alert(parseInt($("#QteMonture").val()) > 0);
+            alert(parseInt($("#QteVerre").val()) > 0);*/
+            /*if (parseInt($("#QteMonture").val()) > 0 == false)
+            {
+                //alert("ff");
+                return false;
+                
+            }
+            if (parseInt($("#QteOD").val()) > 0 == false) {
+               // alert("fd");
+                return false;
+            }
+            if (parseInt($("#QteOG").val()) > 0 == false) {
+                return false;
+            }*/
+            //alert(!parseInt($("#QteMonture").val()) > 0 || !parseInt($("#QteVerre").val()) > 0);
+            //return false;
+            //if (!(parseInt($("#QteMonture").val()) > 0 || parseInt($("#QteOD").val()) > 0 || parseInt($("#QteOG").val()) > 0)) { return false; }
+            alertify.alert("INFO", "Traitement de gneneration de facture en cours. \n Merci de patienter un instant...");
+            vm.factStatut(true);
+            $.ajax({
+                url:"@Url.RouteUrl("_proformatCommandePost")",
+                type: "POST",
+                data: /*JSON.stringify(*/{
+                    Nom:$("#Nom").val(),
+                    Prenom: $("#Prenom").val(),
+                    Email: $("#Email").val(),
+                    Contact: $('#Contact').val(),
+                    Civilite: $("#Civilite").val(),
+                    Assurance: vm.assurance()=='AS'? $("#Assurance").val(): null,
+                   Verre: {
+                       OD: {
+                           VL:{
+                               Sph: ConvertChaine($('#VLSphOD').val()),
+                               Cyl: ConvertChaine($('#VLCyclOD').val()),
+                               Axe: ConvertChaine($("#VLAxeOD").val())
+                           },
+                           VP:{
+                               Sph: ConvertChaine($('#VPSphOD').val()),
+                               Cyl: ConvertChaine($('#VPCyclOD').val()),
+                               Axe: ConvertChaine($("#VPAxeOD").val())
+                           },
+                           Add: ConvertChaine($("#AddOD").val()),
+                           Type:$('#VerreOD').val(),
+                           Prix:$("#PrixOD").val(),
+                           Qte:$("#QteOD").val(),
+                           Remise: remVerreOD
+                           },
+                       OG:{
+                           VL:{
+                               Sph: ConvertChaine($('#VLSphOG').val()),
+                               Cyl:ConvertChaine($('#VLCyclOG').val()),
+                               Axe: ConvertChaine($("#VLAxeOG").val())
+                           },
+                           VP:{
+                               Sph: ConvertChaine($('#VPSphOG').val()),
+                               Cyl:ConvertChaine($('#VPCyclOG').val()),
+                               Axe: ConvertChaine($("#VPAxeOG").val())
+                           },
+                           Add: ConvertChaine($("#AddOG").val()),
+                           Type:$("#VerreOG").val(),
+                           Prix:$("#PrixOG").val(),
+                           Qte:$("#QteOG").val(),
+                           Remise:remVerreOG
+                       },
+                       Teinte: $("#Teinte").val(),
+                       Transition: $("#Transition").is(':checked'),
+                       Organique: $("#Organique").is(':checked'),
+                       Polycarbonate: $("#Polycarbonate").is(':checked'),
+                       Mineraux: $("#Mineraux").is(':checked'),
+                       //Qte: $("#QteVerre").val(),
+                       //Prix: $("#PrixVerre").val(),
+                       //Remise: remVerre/*$("#RemiseVerre").val()*/,
+                       //Designation: $("#Designation").val()
+                   },
+                   Monture: {
+                       Reference: $('#Reference').val(),
+                       Numero: $("#Numero").val(),
+                       Prix: $("#PrixMonture").val(),
+                       Qte: $("#QteMonture").val(),
+                       Remise: remMonture/*$("#RemiseMonture").val()*/
+                   },
+               },/*),*/
+               dataType: "json",
+               success: function (d) {
+                   console.log(d);
+                   if (d.Result == "OK")
+                   {
+                       vm.print(true);
+                       $("#printFacture").attr({ "href": "../../DataDir/" + d.Message });
+                       vm.hpg(true);
+                   } else
+                   {
+                       alertify.alert("Alert", 'Une erreur s\'est produite lors de la génération de facture.\n Veuillez renseigner toutes les informations obligatoires <strong>*</strong>.');
+                   }
+                   vm.factStatut(false);
+               },
+               error: function () { }
+           });
+       }
+       var vm = new CheckValue();
+        ko.applyBindings(vm);
+    </script>
+    }

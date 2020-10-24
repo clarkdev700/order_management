@@ -1,0 +1,75 @@
+﻿@model OpticaVL.Models.Fournisseur
+@{
+    ViewBag.Title = "Fournisseur";
+}
+
+@section NavigationTitle{
+    Fournisseur
+}
+
+@section filedeNavigation{
+    <li><a href="#">liste des fournisseurs</a></li>
+    <li class="active">ajouter un fournisseur</li>
+}
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-6">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            
+            @Html.ValidationSummary(true,"", new{@class="text-danger"})
+            <div class="row">
+                @if (Model.Code == null)
+                {
+                     <div class="form-group">
+                        @Html.Label("Code") @Html.ValidationMessage("Code", new { @class = "text-danger" })
+                        @Html.TextBox("Code", Model.Code, new { @class = "form-control" }) 
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        @Html.Label("Code") @Html.ValidationMessage("Code", new { @class = "text-danger" })
+                        @Html.TextBox("Code", Model.Code, new { @class = "form-control", disabled="disabled" }) 
+                    </div>
+                }
+
+                <div class="form-group">
+                    @Html.Label("Nom") @Html.ValidationMessage("Nom", new { @class="text-danger"})
+                    @Html.TextBox("Nom", Model.Nom, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Contact") @Html.ValidationMessage("Contact", new { @class="text-danger"})
+                    @Html.TextBox("Contact", Model.Contact, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Contact2")
+                    @Html.TextBox("Contact2", Model.Contact2, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Email")
+                    @Html.TextBox("Email", Model.Email, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Adresse")
+                    @Html.TextBox("Adresse", Model.Adresse, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default">Valider</button>
+                    <button class="btn btn-link" >Annuler</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+@Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $("#Parametre").addClass("active");
+        $("#fournisseur").addClass("active");
+    </script>
+}
+

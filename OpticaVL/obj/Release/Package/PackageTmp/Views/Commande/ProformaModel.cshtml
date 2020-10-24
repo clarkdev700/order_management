@@ -1,0 +1,287 @@
+﻿@model OpticaVL.ViewModel.ProformaModel
+@using System.Globalization
+@using Developpez.Dotnet
+@{
+    ViewBag.Title = "ProformaModel";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+    float Mtt = 0;
+}
+
+
+@{
+    int i = 0;
+    while (i < 1)
+    {
+        i++;
+        try 
+        {
+            <div class="row" style="margin:25px 15px 40px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+                @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+            </div>
+            <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+                <div class="row text-center" style="margin-bottom:35px;">
+                    @*{
+                    var date = DateTime.Now;
+                    var numero = (int.Parse(date.Year.ToString().Substring(2)) + date.Month + date.Day) + "" + date.ToString("Hm");
+                }font-size:24px;*@
+                    <h2 style=""><u><strong> FACTURE PROFORMA N&ordm;@Model.NumeroProforma</strong> </u></h2>
+                </div>
+
+            <div class="row" >
+                <div class="col-sm-6">
+                    <span class="col-xs-3"><strong>CLIENT :</strong></span> <span>@Model.Civilite. </span> <span>@Model.Nom.ToUpper()</span> &nbsp;<span>@Model.Prenom</span>
+                </div>
+
+                @{
+                    if (Model.Assurance != null)
+                    {
+                        <div class="col-sm-6">
+                            <span class="col-xs-4"><strong>ASSURANCE :</strong></span> <span>@Model.Assurance.ToUpper()</span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="row" style="margin-bottom:100px; margin-top:20px;">
+                <div class="col-md-5">
+                    <span class="col-xs-5"><strong>CONTACT :</strong></span><span>@Model.Contact</span>
+                </div>
+                <div class="col-sm-1"></div>
+                <div class="col-md-5">
+                    <span class="col-xs-3"><strong>Email :</strong></span><span>@Model.Email</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <table  border="1" cellpadding="5" cellspacing="5"  style="width:100%; height:650px;" rules="groups" frame="box">
+                    <colgroup width="5%" span="1">
+                    </colgroup>
+                    <colgroup width="50%" span="1">
+                    </colgroup>
+                    <colgroup span="1" width="15%">
+                    </colgroup>
+                    <colgroup span="1" width="13%"></colgroup>
+                    <colgroup span="1" width="17%"></colgroup>
+                    <thead>
+                        <tr class="" style="background-color: #a2b1d0; font-size: 20px; "> <!-- #8f909f;-->
+                            <th class="text-center" height="">QTE</th>
+                            <th class="text-center">DESIGNATION</th>
+                            <th class="text-center">PU (CFA)</th>
+                            <th class="text-center">REMISE</th>
+                            <th class="text-center">SOUS TOTAL (CFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Monture.Qte > 0)
+                        {
+                            <tr>
+                                <td class="" valign="middle" align="center">@Model.Monture.Qte</td>
+                                <td class="" style="">
+                                    <div class="row pad">
+                                        <h3 class="">MONTURE</h3>
+                                    </div>
+                                    <div class="row pad">
+                                        @Model.Monture.Reference.ToUpper() - @Model.Monture.Numero.ToUpper()
+                                    </div>
+                                </td>
+                                <td style="" valign="middle" align="center">@Model.Monture.Prix.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                <td style="" valign="middle" align="center">@Model.Monture.Remise.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                <td style="padding-left:0px;" valign="middle" align="center">
+                                    @{
+                                        var stt = (Model.Monture.Qte * Model.Monture.Prix) - Model.Monture.Remise;
+                                        Mtt += stt;
+                                    }
+                                    @stt.ToString("N0", CultureInfo.CurrentCulture)
+                                </td>
+                            </tr>
+                        }     
+                    </tbody>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td><div class="row  pad">
+                                <h3>VERRES</h3>
+                            </div></td><td></td><td></td><td></td>
+                        </tr>
+                        @if (Model.Verre.OD.Qte > 0)
+                        {
+                            <tr>
+                                <td valign="middle" align="center" class="">@Model.Verre.OD.Qte</td>
+                                <td>
+                                    <div class="row pad">
+                                        <h4>@Model.Verre.OD.Type.Default("").ToUpper() OD</h4>
+                                    </div>
+                                    <div class="row pad">
+                                        @{string vldegre = "";}
+                                        <span class="">Sph = </span> <span class=""> @Model.Verre.OD.VL.Sph.Default("") |</span>
+                                        <span class="">Cycl = </span> <span class="">@Model.Verre.OD.VL.Cyl.Default("") | </span>
+                                        <span class="">Axe = </span> <span class="">
+                                        @if (Model.Verre.OD.VL.Axe != null && Model.Verre.OD.VL.Axe != "0" && Model.Verre.OD.VL.Axe.ToUpper() != "PLAN") { vldegre = "°"; }
+                                         @(Model.Verre.OD.VL.Axe.Default("") + vldegre)
+                                        </span>
+                                        @if (Model.Verre.OD.Add != null)
+                                        {
+                                            <span>|</span> <span class="">Add = </span><span class="">@Model.Verre.OD.Add.Default("")</span>
+                                        }
+
+                                    </div>
+
+                                    @{
+                                        var vp = Model.Verre.OD.VP;
+                                        if (vp.Axe != null || vp.Cyl != null || vp.Sph != null)
+                                        {
+                                            <div class="row pad">
+                                                <span class="">Sph = </span>
+                                                <span>@vp.Sph.Default("") | </span>
+                                                <span class="">Cycl = </span> <span>@vp.Cyl.Default("") |</span>
+                                                <span class="">Axe = </span> <span>
+                                                @{string vpdegre = "";
+                                                  if (vp.Axe != null && vp.Axe != "0" && vp.Axe.ToUpper() != "PLAN") { vpdegre = "°"; }
+                                                  }
+                                                @(vp.Axe.Default("") + vpdegre)
+                                                </span>
+                                            </div>
+                                        }
+                                    }
+
+                                </td>
+                                <td valign="middle" align="center">
+                                    @Model.Verre.OD.Prix.ToString("N0", CultureInfo.CurrentCulture)
+                                </td>
+                                <td valign="middle" align="center">
+                                    @Model.Verre.OD.Remise.ToString("N0", CultureInfo.CurrentCulture)
+                                </td>
+                                <td valign="middle" align="center">
+                                    @{
+                                        var OD = Model.Verre.OD;
+                                        var sttOD = (OD.Prix * OD.Qte) - OD.Remise;
+                                        Mtt += sttOD;
+                                    }
+                                    @sttOD.ToString("N0", CultureInfo.CurrentCulture)
+                                </td>
+                            </tr>
+                        }
+                        
+                        @if (Model.Verre.OG.Qte > 0)
+                        {
+                            <tr>
+                                <td valign="middle" align="center">@Model.Verre.OG.Qte</td>
+                                <td>
+                                    <div class="row pad">
+                                        <h4>@Model.Verre.OG.Type.Default("").ToUpper() OG</h4>
+                                    </div>
+                                    <div class="row pad">
+                                        <span>Sph = </span> <span>@Model.Verre.OG.VL.Sph.Default("") |</span>
+                                        <span>Cycl = </span> <span>@Model.Verre.OG.VL.Cyl.Default("")|</span>
+                                        <span>Axe = </span> <span>
+                                        @{
+                                            string vlgdegre = "";
+                                            if (Model.Verre.OG.VL.Axe != null && Model.Verre.OG.VL.Axe != "0" && Model.Verre.OG.VL.Axe.ToUpper() != "PLAN") { vlgdegre = "°"; }
+                                        }
+                                        @(Model.Verre.OG.VL.Axe.Default("") + vlgdegre)
+                                        </span>
+                                        @if (Model.Verre.OG.Add != null)
+                                        {
+                                            <span>|</span><span> Add = </span>
+                                            <span>@Model.Verre.OG.Add.Default("")</span>
+                                        }
+
+                                    </div>
+                                    @{
+                                        var vpg = Model.Verre.OG.VP;
+                                        if (vpg.Axe != null || vpg.Cyl != null || vpg.Sph != null)
+                                        {
+                                            <div class="row pad">
+                                                <span>Sph = </span> <span>@vpg.Sph.Default("")|</span>
+                                                <span>Cycl = </span> <span>@vpg.Cyl.Default("") |</span>
+                                                <span>Axe = </span> <span>
+                                                @{
+                                                    string vpgdegre = "";
+                                                    if (vpg.Axe != null && vpg.Axe != "0" && vpg.Axe.ToUpper() != "PLAN") { vpgdegre = "°"; }
+                                                  }
+                                                @(vpg.Axe.Default("") + vpgdegre)
+                                                </span>
+                                            </div>
+                                        }
+                                    }
+                                </td>
+                                <td valign="middle" align="center">@Model.Verre.OG.Prix.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                <td valign="middle" align="center">@Model.Verre.OG.Remise.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                <td valign="middle" align="center">
+                                    @{
+                                        var OG = Model.Verre.OG;
+                                        var sttOG = (OG.Qte * OG.Prix) - OG.Remise;
+                                        Mtt += sttOG;
+                                    }
+                                    @sttOG.ToString("N0", CultureInfo.CurrentCulture)
+                                </td>
+                            </tr>
+                        }
+
+                        <tr>
+                            @*<td class="text-center" valign="middle" align="center">@Model.Verre.Qte</td>*@
+                            <td></td>
+                            <td style="">
+                                @if (Model.Verre.Teinte != null)
+                                {
+                                    <div class="row pmarge pad" style="margin-top:20px;">
+                                        <span class="col-xs-2">Teinte: </span><span>@Model.Verre.Teinte.ToUpper()</span>
+                                    </div>
+                                }
+
+                                @if (Model.Verre.Organique)
+                                {
+                                    <div class="row pmarge pad">
+                                        <span class="col-xs-4">Organique</span>
+                                    </div>
+                                }
+                                @if (Model.Verre.Transition)
+                                {
+                                    <div class="row pmarge pad">
+                                        <span class="col-xs-4">Transition</span>
+                                    </div>
+                                }
+                                @if (Model.Verre.Polycarbonate)
+                                {
+                                    <div class="row pmarge pad">
+                                        <span class="col-xs-4">Polycarbonate</span>
+                                    </div>
+                                }
+                                @if (Model.Verre.Mineraux)
+                                {
+                                    <div class="row pmarge pad">
+                                        <span class="col-xs-4">Mineraux</span>
+                                    </div>
+                                }
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                    <tfoot><!-- #b8b8b8 #aab9bf -->
+                        <tr style="font-size: 20px; background-color: #b8b8b8;"><th colspan="4" class="text-center" height="40px;">TOTAL</th><th colspan="1" valign="middle" align="center" class="text-center">@Mtt.ToString("N0", CultureInfo.CurrentCulture)</th></tr>
+                    </tfoot>
+                </table>
+
+            </div>
+            <div class="row">
+                @{
+                    var mttEnlettre = NumberConverter.Spell((ulong)Mtt);
+                    var mttEnLettreFormater = mttEnlettre[0].ToString().ToUpper() + mttEnlettre.Substring(1);
+                }
+                <h3>Facture proforma arr&ecirc;t&eacute;e &agrave; la somme de <strong>@mttEnLettreFormater (@Mtt.ToString("N0", CultureInfo.CurrentCulture))FCFA</strong></h3>
+            </div>
+            <div class="row pull-right" style="margin-top:20px;">
+                <h2>
+                    Signature
+                </h2>
+            </div>
+        </div>
+        }
+        catch (Exception ex)
+        {
+            <h3>Une erreur s'est produite lors de la  generation de la facture. Veuillez saisir les donnees obligatoires.</h3>
+        }
+    }
+}

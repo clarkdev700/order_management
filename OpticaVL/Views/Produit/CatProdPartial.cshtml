@@ -1,0 +1,157 @@
+﻿@*section headerStyle {
+
+   <link href="~/Content/jqx.base.css" rel="stylesheet" />
+}*@
+
+@{
+    Layout = null;
+}
+
+<div id="jqxTree">
+    <ul data-bind="">
+        <!-- ko foreach:catprod -->
+        <li item-expanded="true">
+            <span data-bind="text:Categorie"></span>
+            <ul data-bind="foreach: Produits">
+                <li>
+                    <span data-bind="text: LibMarque"></span>
+                    <ul data-bind="foreach:MarqueProds">
+                        <li data-bind="click: $root.selectItem" >
+                            <span data-bind="text:Designation, attr:{title:Designation}"></span>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <!-- /ko -->
+        <!--TEST-->
+        <!--<li>
+            <span>VERRES</span>
+            <ul>
+                <li>
+                    <span>ORGANIQUE</span>
+                    <ul>
+                        <li>
+                            <span>PROGRESSIF</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span>UNIFOCAUX</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <span>MINERAUX</span>
+                    <ul>
+                        <li>
+                            <span>PROGRESSIF</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span>UNIFOCAUX</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>-->
+    </ul>
+</div>
+
+@*section scripts {
+  <script src="~/Scripts/knockout-3.3.0.js"></script>
+  <script src="~/Scripts/jqxcore.js"></script>
+  <script src="~/Scripts/jqxdata.js"></script>
+  <script src="~/Scripts/jqxknockout.js"></script>
+  <script src="~/Scripts/jqxscrollbar.js"></script>
+  <script src="~/Scripts/jqxlistbox.js"></script>
+  <script src="~/Scripts/jqxexpander.js"></script>
+  <script src="~/Scripts/jqxbuttons.js"></script>
+  <script src="~/Scripts/jqxpanel.js"></script>
+  <script src="~/Scripts/jqxtree.js"></script>
+  
+ <script type="text/javascript">
+    var catProdTree = [];
+    
+    $(document).ready(function () {
+        $.ajax({
+               url:"@Url.RouteUrl("_listeProduitCat")",
+                type: "GET",
+                dataType: "json",
+                success: function(d) {
+                    if (d.length > 0) {
+                        $.each(d, function (index, valeur) { 
+                            vm.catprod.push({ Categorie: valeur.Categorie, Produits: valeur.Produits });
+                            $.each(valeur.Produits, function (x, val) {
+                                $.each(val.MarqueProds, function (x1, val1) {
+                                    catProdTree.push({ Id: val1.Id, RefProd: val1.RefProd, Prix: val1.Prix, Designation: val1.Designation, QteStock: val1.QteStock });
+                                });
+                                
+                            });
+                        }); console.log(catProdTree);
+                        $("#jqxTree").jqxTree({ /*height:'50%', width:'50%'*/ });
+                    }
+                },
+                error: function() {}
+
+            });
+    });
+
+     $("#jqxTree").on('select', function (e) {
+         var args = e.args;
+         var item = $("#jqxTree").jqxTree('getItem', args.element);
+         var libToSeach = item.label;
+         getElementValue(libToSeach);
+     });
+
+     function getElementValue(libelle) {
+         for(i = 0 ; i < catProdTree.length; i++) {
+             if (catProdTree[i].Designation == libelle)
+             {
+                 vm.prix(catProdTree[i].Prix);
+                 vm.refprod(catProdTree[i].RefProd);
+                 vm.QteStock(catProdTree[i].QteStock);
+                 console.log(vm.prix());
+                 console.log(vm.refprod());
+                 console.log(vm.QteStock());
+                 break;
+             }
+         }
+     }
+
+     var viewModel = function ()
+        {
+            var x = this;
+            x.catprod = ko.observableArray([]);
+            x.refprod = ko.observable();
+            x.prix = ko.observable();
+            x.QteStock = ko.observable();
+            x.selectItem = function ($parent) {
+                //x.prix($parent.Prix);
+                //alert(x.prix());
+                //x.QteStock($parent.QteStock);
+                //x.refprod($parent.RefProd);
+            };
+        };
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>  
+    }*@
+

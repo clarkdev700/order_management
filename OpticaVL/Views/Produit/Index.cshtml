@@ -1,0 +1,63 @@
+﻿@model List<OpticaVL.ViewModel.HProduct>
+@using OpticaVL.ViewModel;
+@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Gestion de produits
+}
+
+@section filedeNavigation{
+    <li><a href="#">produits</a></li>
+    <li class="active">liste des produits</li>
+}
+
+<div class="row">
+    <p>
+        <a href="@Url.RouteUrl("_addProduit")" class="btn btn-primary btn-sm">Ajouter</a>
+    </p>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Designation</th>
+                <th>Marque</th>
+                <th>Stock</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{var _tmp = "";}
+            @foreach (var p in Model)
+            {
+                if (_tmp != p.Categorie) 
+                {
+                    <tr><th colspan="4">-------- @p.Categorie.ToUpper() ----------</th></tr>
+                } else { }
+                <tr>
+                    <td>@p.Designation.ToUpper()</td>
+                    <td>
+                        @{var marque = p.Marque != null ? p.Marque.ToUpper(): null;}
+                        @marque
+                    </td>
+                    <td>@p.QteStock</td>
+                    <td>
+                        <span><a href="@Url.RouteUrl("_updateProduit", new {id = p.Id })"><i class="glyphicon glyphicon-edit"></i></a></span> |
+                        <span><a href="@Url.RouteUrl("_listeStock", new { id = p.Id })"><i class="glyphicon glyphicon-th"></i></a></span> |
+                        <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                    </td>
+                </tr>
+                _tmp = p.Categorie;
+            }
+                
+        </tbody>
+    </table>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $("#indexProduit").addClass("active");
+        $("#listeProduit").addClass("active");
+    </script>
+    }
+

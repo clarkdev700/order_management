@@ -1,0 +1,159 @@
+﻿@model OpticaVL.ViewModel.ProformaModel
+@using System.Globalization
+@{
+    ViewBag.Title = "ProformaModel";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+    float Mtt = 0;
+}
+
+<div class="row" style="margin:25px 15px 90px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+    @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+</div>
+<div style="margin-left:94px; margin-right:94px; font-size:17px;">
+    <div class="row text-center">
+        <h4><u><strong> FACTURE PROFORMA N&ordm;@Model.NumeroProforma</strong> </u></h4>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-5">
+            <span class="col-xs-5"><strong>CLIENT :</strong></span> <span>@Model.Nom.ToUpper()</span> &nbsp;<span>@Model.Prenom</span>
+        </div>
+        <div class="col-sm-1"></div>
+        @{
+if (Model.Assurance != null)
+{
+    <div class="col-sm-5">
+        <span class="col-xs-6"><strong>ASSURANCE :</strong></span> <span>@Model.Assurance.ToUpper()</span>
+    </div>
+}
+        }
+    </div>
+
+    <div class="row" style="margin-bottom:70px; margin-top:20px;">
+        <div class="col-md-5">
+            <span class="col-xs-5"><strong>CONTACT :</strong></span><span>@Model.Contact</span>
+        </div>
+        <div class="col-sm-1"></div>
+        <div class="col-md-5">
+            <span class="col-xs-6"><strong>Email :</strong></span><span>@Model.Email</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <table class="table table-striped  table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">QTE</th>
+                    <th class="text-center">DESIGNATION</th>
+                    <th class="text-center">PU (CFA)</th>
+                    <th class="text-center">REMISE</th>
+                    <th class="text-center">SOUS TOTAL (CFA)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">@Model.Monture.Qte</td>
+                    <td>
+                        <h4>MONTURE</h4>
+                        <p>
+                            @Model.Monture.Reference.ToUpper() - @Model.Monture.Numero
+                        </p>
+                    </td>
+                    <td>@Model.Monture.Prix.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>@Model.Monture.Remise.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>
+                        @{
+                            var stt = (Model.Monture.Qte * Model.Monture.Prix) - Model.Monture.Remise;
+                            Mtt += stt;
+                        }
+                        @stt.ToString("N0", CultureInfo.CurrentCulture)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">@Model.Verre.Qte</td>
+                    <td>
+                        <h4>VERRES</h4>
+                        <div class="row">
+                            <span class="col-xs-3">verre:</span> <span>@Model.Verre.Designation.ToUpper()</span>
+                        </div>
+                        <div class="row">
+                            <span class="col-xs-2">OD:</span>
+                            <span class="">Sph = </span><span>@Model.Verre.OD.Sph</span>
+                            <span class="">Cyl = </span><span>@Model.Verre.OD.Cyl</span>
+                            <span class="">Axe = </span><span>@Model.Verre.OD.Axe&ordm;</span>
+                        </div>
+                        <div class="row">
+                            <span class="col-xs-2">OG:</span>
+                            <span class="">Sph = </span><span>@Model.Verre.OG.Sph</span>
+                            <span class="">Cyl = </span><span>@Model.Verre.OG.Cyl</span>
+                            <span class="">Axe = </span><span>@Model.Verre.OG.Axe&ordm;</span>
+                        </div>
+
+
+                        @if (Model.Verre.Addition != null && Model.Verre.Addition > 0)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Addition:</span><span>@Model.Verre.Addition</span>
+                            </div>
+                        }
+
+                        @if (Model.Verre.Teinte != null)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Teinte:</span><span>@Model.Verre.Teinte.ToUpper()</span>
+                            </div>
+                        }
+
+                        @if (Model.Verre.Organique)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Organique</span>
+                            </div>
+                        }
+                        @if (Model.Verre.Transition)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Transition</span>
+                            </div>
+                        }
+                        @if (Model.Verre.Polycarbonate)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Polycarbonate</span>
+                            </div>
+                        }
+                        @if (Model.Verre.Mineraux)
+                        {
+                            <div class="row">
+                                <span class="col-xs-4">Mineraux</span>
+                            </div>
+                        }
+                    </td>
+                    <td>@Model.Verre.Prix.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>@Model.Verre.Remise.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>
+                        @{
+                        var vstt = Model.Verre.Qte * Model.Verre.Prix;
+                        vstt -= Model.Verre.Remise;
+                        Mtt += vstt;
+                        }
+                        @vstt.ToString("N0", CultureInfo.CurrentCulture)
+                    </td>
+                </tr>
+               <!-- <tr>
+                    <td>
+                        <h2 class="text-gray">Proforma</h2>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>-->
+            </tbody>
+            <tfoot>
+                <tr><th colspan="4" class="text-center">TOTAL</th><th colspan="1">@Mtt.ToString("N0", CultureInfo.CurrentCulture)</th></tr>
+            </tfoot>
+        </table>
+    </div>
+
+</div>

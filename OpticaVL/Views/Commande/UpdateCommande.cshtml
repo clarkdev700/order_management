@@ -1,0 +1,905 @@
+﻿@model OpticaVL.ViewModel.FicheCommandeModel
+@{
+    ViewBag.Title = "";
+}
+
+@section headerStyle {
+    <style type="text/css">
+        hr {
+            border-top: 1px solid;
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+
+        .ssTitle {
+            margin-top: 45px;
+            margin-bottom: 0px;
+        }
+
+        .sm4 {
+            margin-bottom: 10px;
+        }
+
+        .chkPadd {
+            padding-top: 30px;
+        }
+    </style>
+}
+@{ float mtt = 0;}
+
+@section NavigationTitle{
+    Commande
+}
+
+@section filedeNavigation{
+    <li><a href="#">commandes</a></li>
+    <li class="active">editer une commande</li>
+}
+
+<div class="row">
+
+    @using (Html.BeginForm(/*"", "", FormMethod.Post, new { @class = "" }*/))
+    {
+        <fieldset style="margin-top:15px;">
+            <legend style="border-bottom:1px solid;">INFORMATION DU CLIENT</legend>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <label for="assure" style="">
+                        <input type="radio" class="radio-inline" id="assure" name="assurance" style="margin:0 0;" data-bind="checked:assurance" value="AS" />
+                        Assur&eacute;(e)
+                    </label><br />
+                    <label for="non_assure" style="">
+                        <input type="radio" class="radio-inline" value="NAS" id="non_assure" name="assurance" style="margin:0 0;" data-bind="checked:assurance" />
+                        Non Assur&eacute;(e)
+                    </label>
+                </div>
+                <div class="col-md-3 pull-right">
+                    @Html.Label("Date Commande")
+                    <input name="DateCommande" type="date" value="@Model.DateCommande.ToString("yyyy-MM-dd")" class="form-control" />
+                    @*Html.TextBox("DateCommande", @Model.DateCommande, new { @class="form-control"})*@
+                </div>
+                <div class="col-md-12" data-bind="visible:assurance()=='AS'"></div>
+                <div class="col-md-12" data-bind="visible:assurance()=='NAS'"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    @Html.Label("Titre")<strong>*</strong>
+                    @Html.DropDownList("Model.Civilite", (SelectList)ViewBag.Civilite, new { @class="form-control"})
+                </div>
+                @*<div class="col-md-3"></div>
+                <div class="col-md-6" data-bind="visible:assurance()=='AS'" id="chargeAssurance">
+                    @Html.Label("Assurance")
+                    @Html.DropDownList("AssuranceId", (SelectList)ViewBag.Assurance, "--Choisir une assurance--", new { @class = "form-control" })
+                </div>
+                <div class="col-md-10"></div>*@
+            </div>
+            <div class="form-group">
+                <div class="col-md-6">
+                    @Html.Label("Nom")<strong>*</strong>
+                    @Html.TextBox("Nom", Model.Nom, new { @class = "form-control" })
+                </div>
+                <div class="col-md-6">
+                    @Html.Label("Prenom")<strong>*</strong>
+                    @Html.TextBox("Prenom", Model.Prenom, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    @Html.Label("Contact")<strong>*</strong>
+                    @Html.TextBox("Contact", Model.Contact, new { @class = "form-control" })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Contact2")
+                    @Html.TextBox("Contact2", Model.Contact2, new { @class = "form-control" })
+                </div>
+                <div class="col-md-6">
+                    @Html.Label("Email")
+                    @Html.TextBox("Email", Model.Email, new { @class = "form-control" })
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset style="margin-top:15px;">
+            <legend style="border-bottom:1px solid;">MONTURE</legend>
+            <div class="form-group">
+                <div class="col-md-3">
+                    @Html.Label("Marque")<strong>*</strong>
+                    @Html.DropDownList("Marque", (SelectList)ViewBag.Marque, "--Choisir une marque--", new { @class = "form-control", @onchange = "GetRefMonture()" })
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("Numero")<strong>*</strong>
+                    <select name="MontureId" id="Monture_MontureId" data-bind="options:listeMonture, optionsText:'Ref', value:montureSelected, optionsValue:'Id', event:{change:changeMonturePrice()}" class="form-control"></select>
+                    @Html.Hidden("Monture.MontureId", @Model.Monture.MontureId, new { @class = "", @data_bind = "value:montureId", })
+                </div>
+                <div class="col-md-3">
+                    @Html.Label("Prix")
+                    @Html.TextBox("Monture.MonturePrix", Model.Monture.MonturePrix, new { @class = "form-control", @data_bind = "value:prixMonture" })
+                </div>
+                <div class="col-md-2">
+                    @Html.Label("Qte")<strong>*</strong>
+                    @Html.TextBox("Monture.MontureQte", Model.Monture.MontureQte, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    @Html.Label("Remise")
+                    @Html.TextBox("MontureRemise", Model.Monture.MontureRemise, new { @class = "form-control", @data_bind = "value:remMonture, event:{blur:checkValue('remMonture')}" })
+                    @Html.Hidden("Monture.MontureRemise", Model.Monture.MontureRemise, new { @class = "form-control", @data_bind = "value:valRemMonture, event:{blur:checkValue('remMonture')}" })
+                </div>
+                <div class="col-md-2">
+                    @Html.Label("Taux")
+                    <select class="form-control" name="" id="" data-bind="options:typeMonture, value:remMontureVal, event:{change:checkValue('remMonture')}">                        </select>
+                </div>
+                <div class="col-sm-offset-2 col-sm-3">
+                    @Html.Label("Remise DG")
+                    @Html.TextBox("MontureRemiseDG", Model.Monture.MontureRemiseDG, new { @class = "form-control", @data_bind = "value:remMontureDG, event:{blur:checkValue('remMontureDG')}" })
+                    @Html.Hidden("Monture.MontureRemiseDG", Model.Monture.MontureRemiseDG, new { @class = "form-control", @data_bind = "value:valRemMontureDG, event:{blur:checkValue('remMontureDG')}" })
+                </div>
+                <div class="col-md-2">
+                    @Html.Label("Taux")
+                    <select class="form-control" name="" id="" data-bind="options:typeMontureDG, value:remVerreMontureValDG, event:{change:checkValue('remMontureDG')}">                        </select>
+                </div>
+            </div>
+
+        </fieldset>
+
+        <fieldset style="margin-top:15px;">
+            <legend style="border-bottom:1px solid;">VERRES</legend>
+            <div class="form-group">
+                <div class="col-md-6">
+                    <h4><strong>OD</strong></h4>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Type verre")
+                            @Html.DropDownList("Verre.OD.Type", (SelectList)ViewBag.TypeVerre, new { @class = "form-control", @onchange = "getPuissanceModel('OD')" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Gamme verre")
+                            @Html.DropDownList("Verre.OD.GammeVerreId", (SelectList)ViewBag.GammeVerre, "--Choisir une gamme de verre--",new { @class = "form-control", @onchange = "getPuissanceModel('OD')" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VL</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('ODSPH')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OD.VL.Sph", Model.Verre.OD.VL.Sph, new { @class = "form-control" })*@
+                            <select data-bind="options:ODSph, value:ODSphSelected" class="form-control" id="Verre_OD_VL_Sph" name="Verre.OD.VL.Sph"></select>
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('ODCYCL')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OD.VL.Cyl", Model.Verre.OD.VL.Cyl, new { @class = "form-control" })*@
+                            <select class="form-control" data-bind="options:ODCycl, value:ODCyclSelected" id="Verre_OD_VL_Cyl" name="Verre.OD.VL.Cyl"></select>
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('ODAXE')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OD.VL.Axe", Model.Verre.OD.VL.Axe, new { @class = "form-control" })*@
+                            <select data-bind="options:ODAxe, value:ODAxeSelected" class="form-control" id="Verre_OD_VL_Axe" name="Verre.OD.VL.Axe"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VP</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("Verre.OD.VP.Sph", Model.Verre.OD.VP.Sph, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("Verre.OD.VP.Cyl", Model.Verre.OD.VP.Cyl, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("Verre.OD.VP.Axe", Model.Verre.OD.VP.Axe, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Addition") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('ODADD')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OD.Add", Model.Verre.OD.Add, new { @class = "form-control" })*@
+                            <select data-bind="options:ODAdd, value:ODAddSelected" class="form-control" id="Verre_OD_Add" name="Verre.OD.Add"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Qte")
+                            @Html.TextBox("Verre.OD.Qte", Model.Verre.OD.Qte, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Prix")
+                            @Html.TextBox("Verre.OD.Prix", Model.Verre.OD.Prix, new { @class = "form-control", @data_bind = "value:prixOD" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise")
+                            @Html.TextBox("OD.Remise", Model.Verre.OD.Remise, new { @class = "form-control", @data_bind = "value:remVerreOD, event:{blur:checkValue('remVerreOD')}" })
+                            @Html.Hidden("Verre.OD.Remise", Model.Verre.OD.Remise, new { @class = "form-control", @data_bind = "value:valRemOD, event:{blur:checkValue('remVerreOD')}" })
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreOD, value:remVerreValOD, event:{change:checkValue('remVerreOD')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*@Html.Label("Montant")
+                                @Html.TextBox("MTTOD", null, new { @class = "form-control" })*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise DG")
+                            @Html.TextBox("OD.RemiseDG", Model.Verre.OD.RemiseDG, new { @class = "form-control", @data_bind = "value:remVerreODDG, event:{blur:checkValue('remVerreODDG')}" })
+                            @Html.Hidden("Verre.OD.RemiseDG", Model.Verre.OD.RemiseDG, new { @class = "form-control", @data_bind = "value:valRemODDG, event:{blur:checkValue('remVerreODDG')}" })
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreODDG, value:remVerreValODDG, event:{change:checkValue('remVerreODDG')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*@Html.Label("Montant")
+                                @Html.TextBox("MTTOG", null, new { @class = "form-control" })*@
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4><strong>OG</strong></h4>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Type verre")
+                            @Html.DropDownList("Verre.OG.Type", (SelectList)ViewBag.TypeVerre,"--Choisir une gamme de verre--" ,new { @class = "form-control", @onchange = "getPuissanceModel('OG')" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Gamme verre")
+                            @Html.DropDownList("Verre.OG.GammeVerreId", (SelectList)ViewBag.GammeVerre, "--Choisir une gamme de verre--", new { @class = "form-control", @onchange = "getPuissanceModel('OG')" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VL</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('OGSPH')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OG.VL.Sph", Model.Verre.OG.VL.Sph, new { @class = "form-control" })*@
+                            <select class="form-control" data-bind="options:OGSph, value:OGSphSelected" id="Verre_OG_VL_Sph" name="Verre.OG.VL.Sph"></select>
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('OGCYCL')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OG.VL.Cyl", Model.Verre.OG.VL.Cyl, new { @class = "form-control" })*@
+                            <select class="form-control" data-bind="options:OGCycl, value:OGCyclSelected" id="Verre_OG_VL_Cyl" name="Verre.OG.VL.Cyl"></select>
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('OGAXE')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OG.VL.Axe", Model.Verre.OG.VL.Axe, new { @class = "form-control" })*@
+                            <select class="form-control" data-bind="options:OGAxe, value:OGAxeSelected" id="Verre_OG_VL_Axe" name="Verre.OG.VL.Axe"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-1" style="margin-left: -30px; padding-top: 2em; width:10px;"><strong>*VP</strong></div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Sph")
+                            @Html.TextBox("Verre.OG.VP.Sph", Model.Verre.OG.VP.Sph, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Cycl")
+                            @Html.TextBox("Verre.OG.VP.Cyl", Model.Verre.OG.VP.Cyl, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-4 sm4">
+                            @Html.Label("Axe")
+                            @Html.TextBox("Verre.OG.VP.Axe", Model.Verre.OG.VP.Axe, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Addition") &nbsp;&nbsp;  <span title="ajouter une valeur" onclick="click:AddNewItem('OGADD')"><i class="glyphicon glyphicon-plus-sign"></i></span>
+                            @*Html.TextBox("Verre.OG.Add", Model.Verre.OG.Add, new { @class = "form-control" })*@
+                            <select class="form-control" data-bind="options:OGAdd, value:OGAddSelected" id="Verre_OG_Add" name="Verre.OG.Add"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Qte")
+                            @Html.TextBox("Verre.OG.Qte", Model.Verre.OG.Qte, new { @class = "form-control" })
+                        </div>
+                        <div class="col-sm-8">
+                            @Html.Label("Prix")
+                            @Html.TextBox("Verre.OG.Prix", Model.Verre.OG.Prix, new { @class = "form-control", @data_bind = "value:prixOG" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise")
+                            @*Html.TextBox("RemOG", null, new { @class = "form-control" })*@
+                            @Html.TextBox("OG.Remise", Model.Verre.OG.Remise, new { @class = "form-control", @data_bind = "value:remVerreOG, event:{blur:checkValue('remVerreOG')}" })
+                            @Html.Hidden("Verre.OG.Remise", Model.Verre.OG.Remise, new { @class = "form-control", @data_bind = "value:valRemOG, event:{blur:checkValue('remVerreOG')}" })
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreOG, value:remVerreValOG, event:{change:checkValue('remVerreOG')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*@Html.Label("Montant")
+                                @Html.TextBox("MTTOG", 0, new { @class = "form-control", @data_bind = "value:valRemOG", disabled = "disabled" })*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            @Html.Label("Remise DG")
+                            @*Html.TextBox("RemOG", null, new { @class = "form-control" })*@
+                            @Html.TextBox("OG.RemiseDG", Model.Verre.OG.RemiseDG, new { @class = "form-control", @data_bind = "value:remVerreOGDG, event:{blur:checkValue('remVerreOGDG')}" })
+                            @Html.Hidden("Verre.OG.RemiseDG", Model.Verre.OG.RemiseDG, new { @class = "form-control", @data_bind = "value:valRemOGDG, event:{blur:checkValue('remVerreOGDG')}" })
+                        </div>
+                        <div class="col-sm-4">
+                            @Html.Label("Taux")
+                            <select name="" class="form-control" id="" data-bind="options:typeVerreOGDG, value:remVerreValOGDG, event:{change:checkValue('remVerreOGDG')}"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            @*@Html.Label("Montant")
+                                @Html.TextBox("MTTOG", 0, new { @class = "form-control", disabled = "disabled", @data_bind = "value:valRemOGDG" })*@
+                        </div>
+                    </div>
+                </div>   
+            </div>
+
+            <h4 class="ssTitle"><em><strong>Nature</strong></em></h4>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-4" style="margin-bottom:15px;">
+                    @Html.Label("Teinte")
+                    @Html.TextBox("Verre.Teinte", Model.Verre.Teinte, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline">
+                        @Html.CheckBox("Verre.Organique", isChecked: @Model.Verre.Organique)
+                        <strong>Organique</strong>
+                    </label>
+                </div>
+                <div class="col-md-2 chkPadd">
+                    <label class="checkbox-inline"> 
+                        @Html.CheckBox("Verre.Mineraux", isChecked: @Model.Verre.Mineraux)<strong>Min&eacute;raux</strong>
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset style="margin-top:15px;">
+            <legend style="border-bottom:1px solid;">Facture</legend>
+            <div class="row">
+                <div class="col-md-4">
+                    <button class="btn btn-default" data-bind="click:AddAssurance,visible:assurance() =='AS'">Add</button>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.Label("Montant Total")
+                            @{ mtt = @Model.Payement.MontantClient  + @Model.Payement.MontantAssurance;}
+                            @Html.TextBox("MontantTotal", @mtt, new { @class = "form-control", @data_bind = "value:montantTotal", disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="row" data-bind="visible:assurance() =='AS'">
+                        <table cellpadding="5" cellspacing="5" align="center" border="0" width="100%">
+                            <thead><tr><th align="center" valign="middle">Assurance</th><th align="center" valign="middle">Charge</th><th></th></tr></thead>
+                            <tbody data-bind="foreach:Assureurs">
+                                <tr>
+                                    <td>@Html.DropDownList("AN[]", (SelectList)ViewBag.Assurance, "--Choisir une assurance--", new { @class = "form-control", @data_bind = "attr:{id:$index}, value:assurId" })</td>
+
+                                    <td><input type="text" class="form-control" data-bind="value:montant" name="AM[]" /></td>
+                                    <td><a href="#" data-bind="click:$parent.removeAssureur" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @*<div class="row">
+                        <div class="form-group">
+                            @Html.Label("Charge assurance")
+                            @Html.TextBox("Payement.MontantAssurance", @Model.Payement.MontantAssurance, new { @class = "form-control" })
+                        </div>
+                    </div>*@
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.Label("Charge client")
+                            @Html.TextBox("Payement.MontantClient", @Model.Payement.MontantClient, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.Label("Reduction client")
+                            @Html.TextBox("Payement.ReductionClient", @Model.Payement.ReductionClient, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.Label("Montant Verse")
+                            @Html.TextBox("Payement.MontantVerse", @Model.Payement.MontantVerse, new { @class = "form-control", @data_bind = "enable:statutPayement" })
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.Label("Mode de règlement")
+                            <select class="form-control" name="Payement.ModeReglement" data-bind="options:ModeReglement, value:ModeReglementSelected, enable:statutPayement">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Ref payement")
+                            @Html.TextArea("Payement.RefPayement", @Model.Payement.RefPayement, new { @class = "form-control", @data_bind = "enable:statutPayement" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="form-group">
+            <button class="btn btn-default" type="submit">Enregistrer</button>
+        </div>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+    var InitStatut = 0, ArrayAssurreur = [];
+    var InitReq = 0;
+    $(function () {
+        $("div .box").css({ "background-color": "#a7def9" });//#56b9ea
+        $("#indexGestionCommande").addClass("active");
+        $("#addCommande").addClass("active");
+        console.log("@ViewBag.marqueId");
+        $("#Marque").val("@ViewBag.marqueId");
+        GetRefMonture();
+        getPuissanceModel('OD');
+        getPuissanceModel('OG');
+
+        $.ajax({
+            url: "@Url.RouteUrl("_getCommandeListeAssurance", new { id = Model.Id})",
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                if (d.length > 0) {
+                    $.each(d, function (index, val) {
+                        ArrayAssurreur.push({ assurId: val.assurId, montant: val.charge });
+                        console.log(ArrayAssurreur);
+                    });
+                    vm.Assureurs(ArrayAssurreur);
+                }
+            },
+            error: function () { }
+        });
+    });
+
+    function CheckValue() {
+        var x = this;
+        x.print = ko.observable(false);
+        x.valider = ko.observable(true);
+        x.prixMonture = ko.observable(0);
+        x.prixOD = ko.observable("@Model.Verre.OD.Prix");
+        x.prixOG = ko.observable("@Model.Verre.OG.Prix");
+        x.remVerreOG = ko.observable("@Model.Verre.OG.Remise");
+        x.remMonture = ko.observable("@Model.Monture.MontureRemise");
+        x.remVerreOD = ko.observable("@Model.Verre.OD.Remise");
+        x.remMontureDG = ko.observable("@Model.Monture.MontureRemiseDG");
+        x.remVerreOGDG = ko.observable("@Model.Verre.OG.RemiseDG");
+        x.remVerreODDG = ko.observable("@Model.Verre.OD.RemiseDG");
+        @*x.reductionClient = ko.observable("@Model.Payement.ReductionClient");*@
+        x.typeVerreOD = ko.observableArray(["valeur", "%"]);
+        x.typeVerreOG = ko.observableArray(["valeur", "%"]);
+        x.typeMonture = ko.observableArray(["valeur", "%"]);
+        x.typeMontureDG = ko.observableArray(["valeur", "%"]);
+        x.typeVerreODDG = ko.observableArray(["valeur", "%"]);
+        x.typeVerreOGDG = ko.observableArray(["valeur", "%"]);
+        x.remMontureVal = ko.observable();
+        x.remVerreVal = ko.observable();
+        x.remVerreValOG = ko.observable();
+        x.remVerreValOD = ko.observable();
+        x.remVerreMontureValDG = ko.observable();
+        x.remVerreValODDG = ko.observable();
+        x.remVerreValOGDG = ko.observable();
+        x.listeMonture = ko.observableArray([]);
+        x.montureVal = ko.observable();
+        //x.prixMonture = ko.observable(0);
+        //x.hpg = ko.observable(false);
+        var assurance = "@Model.AN.Count" > 0 ? "AS" : "NAS";
+        x.assurance = ko.observable(assurance);
+        x.montureSelected = ko.observable();
+        //
+        x.valRemMonture = ko.observable(0);
+        x.valRemMontureDG = ko.observable(0);
+        x.valRemOD = ko.observable(0);
+        x.valRemODDG = ko.observable(0);
+        x.valRemOG = ko.observable(0);
+        x.valRemOGDG = ko.observable(0);
+        x.ModeReglement = ko.observableArray(["Espece", "Virement", "Cheque"]);
+        var _modeReglement = "@Model.Payement.ModeReglement";
+        x.ModeReglementSelected = ko.observable(_modeReglement);
+        x.Civilite = ko.observableArray(["M", "Mme", "Mlle"]);
+        var _civilite = "@Model.Civilite";
+        x.civiliteSelected = ko.observable(_civilite);
+        var statutPayement = "@Model.StatutNbPaye" == "OK" ? true : false;
+        x.statutPayement = ko.observable(statutPayement);
+        x.prixMonture = ko.observable(0);
+
+        //
+        /* puissance */
+        x.ODAxe = ko.observableArray([]);
+        x.ODSph = ko.observableArray([]);
+        x.ODCycl = ko.observableArray([]);
+        x.ODAdd = ko.observableArray([]);
+        x.OGAxe = ko.observableArray([]);
+        x.OGSph = ko.observableArray([]);
+        x.OGCycl = ko.observableArray([]);
+        x.OGAdd = ko.observableArray([]);
+        /* selected value*/
+        x.ODAxeSelected = ko.observable("@Model.Verre.OD.VL.Axe");
+        x.ODSphSelected = ko.observable("@Model.Verre.OD.VL.Sph");
+        x.ODCyclSelected = ko.observable("@Model.Verre.OD.VL.Cyl");
+        x.ODAddSelected = ko.observable("@Model.Verre.OD.Add");
+        x.OGAxeSelected = ko.observable("@Model.Verre.OG.VL.Axe");
+        x.OGSphSelected = ko.observable("@Model.Verre.OG.VL.Sph");
+        x.OGCyclSelected = ko.observable("@Model.Verre.OG.VL.Cyl");
+        x.OGAddSelected = ko.observable("@Model.Verre.OG.Add");
+
+        //
+
+        /*Gestion Multi Assurance*/
+        x.Assureurs = ko.observableArray(ArrayAssurreur);
+        x.AddAssurance = function () {
+            x.Assureurs.push({ assurId: null, montant: 0 });
+        };
+
+        x.removeAssureur = function ($parent) {
+            x.Assureurs.remove($parent);
+        };
+
+        x.ChargeAssuranceTotal = function () {
+            var mtt = 0;
+            if (x.Assureurs().length > 0) {
+                for (var i = 0; i < x.Assureurs().length; i++) {
+                    mtt += parseFloat(x.Assureurs()[i].montant, 10);
+                }
+            }
+
+            return mtt;
+        };
+
+
+        x.montantTotal = ko.pureComputed(function () {
+            var remTotal = parseFloat(x.valRemMonture(), 10) + parseFloat(x.valRemOD(), 10) + parseFloat(x.valRemOG(), 10) + parseFloat(x.valRemMontureDG(), 10) + parseFloat(x.valRemODDG(), 10) + parseFloat(x.valRemOGDG(), 10);
+            console.log(x.valRemMonture());
+            var qteMonture = parseInt($("#Monture_MontureQte").val()), qteOD = parseInt($("#Verre_OD_Qte").val()), qteOG = parseInt($("#Verre_OG_Qte").val());
+            var mtt = parseFloat(x.prixMonture(), 10) * qteMonture + parseFloat(x.prixOD(), 10) * qteOD + parseFloat(x.prixOG(), 10) * qteOG;
+            return mtt - remTotal;
+        });
+
+        x.chargeClient = ko.pureComputed({
+            read: function () {
+                return x.montantTotal();
+            },
+            write: function (value) {
+                return value;
+            }
+        });
+
+        x.chargeAssurrance = ko.pureComputed({
+            read: function () {
+                return montantTotal() - x.chargeClient();
+            },
+            write: function (value) {
+                return value;
+            }
+        });
+        @*observable("@Model.Payement.MontantAssurance");*@
+        x.UpAssuranceCharge = function () {
+            var chargeAssur = parseFloat(x.montantTotal(), 10) - parseFloat($("#Payement_MontantClient").val(), 10);
+            x.chargeAssurrance(chargeAssur);
+        };
+
+        x.changeMonturePrice = function () {
+            var montureid = $("#Monture_MontureId").val();
+            if (x.listeMonture().length > 0 && montureid != null) {
+                for (i = 0; i < x.listeMonture().length; i++) {
+                    if (x.listeMonture()[i].Id == $("#Monture_MontureId").val()) {
+                        x.prixMonture(x.listeMonture()[i].Prix);
+                        break;
+                    }
+                }
+            }
+            return 0;
+        };
+
+        /*x.prixMonture = ko.computed(function () {
+            var montureid = $("#Monture_MontureId").val();
+            alert("cc");
+            if (x.listeMonture().length > 0 && montureid != null) {
+                //alert(x.montureSelected()); alert(montureid);
+                for (i = 0; i < x.listeMonture().length; i++)
+                {
+                    if (x.listeMonture()[i].Id == $("#Monture_MontureId").val())
+                    {
+                        return x.listeMonture()[i].Prix;
+                    }
+                }
+            }
+            /*console.log(x.montureSelected());
+            if (x.montureSelected() != null) {
+                return x.montureSelected().Prix;
+            } else
+            return 0;
+        });*/
+
+        x.montureId = ko.computed(function () {
+            if (x.montureSelected() != 'undefined') {
+                //alert(x.montureSelected());
+                return x.montureSelected();
+            }
+            @*else
+                {
+                    x.montureSelected({ Prix: "@ViewBag.MontureSelected.Prix", Ref: "@ViewBag.MontureSelected.RefProd", Id: "@ViewBag.MontureSelected.Id" });
+                    console.log(x.montureSelected().Id);
+                    return x.montureSelected().Id;
+                }*@
+
+        });
+
+        x.checkRemise = function () {
+
+        };
+
+        x.checkValue = function (srcrem) {
+            var qteMonture = parseInt($("#Monture_MontureQte").val()), qteOD = parseInt($("#Verre_OD_Qte").val()), qteOG = parseInt($("#Verre_OG_Qte").val());
+            switch (srcrem) {
+                case "remMonture":
+                    /*alert(parseFloat(x.remMonture()) > 100);
+                    alert(x.remMontureVal());*/
+                    if (x.remMontureVal() == '%' && parseFloat(x.remMonture()) > 100) {
+                        x.remMonture(0);
+                        x.valRemMonture(0);
+                    } else {
+                        var remMonture = vm.getRemValue($("#Monture_MonturePrix").val() * qteMonture, parseFloat(vm.remMonture(), 10), vm.remMontureVal());
+                        x.valRemMonture(remMonture);
+                    }
+                    break;
+                case "remVerreOD":
+                    if (x.remVerreValOD() == '%' && parseFloat(x.remVerreOD()) > 100) {
+                        x.remVerreOD(0);
+                        x.valRemOD(0);
+                    } else {
+                        var remVerreOD = vm.getRemValue($("#Verre_OD_Prix").val() * qteOD, parseFloat(vm.remVerreOD(), 10), vm.remVerreValOD());
+                        x.valRemOD(remVerreOD);
+                    }
+                    break;
+                case "remVerreOG":
+                    if (x.remVerreValOG() == '%' && parseFloat(x.remVerreOG()) > 100) {
+                        x.remVerreOG(0);
+                        x.valRemOG(0);
+                    } else {
+                        var remVerreOG = vm.getRemValue($("#Verre_OG_Prix").val() * qteOG, parseFloat(vm.remVerreOG(), 10), vm.remVerreValOG());
+                        x.valRemOG(remVerreOG);
+                    }
+                    break;
+                case "remMontureDG":
+                    if (x.remVerreMontureValDG() == '%' && parseFloat(x.remMontureDG()) > 100) {
+                        x.remMontureDG(0);
+                        x.valRemMontureDG(0); //remVerreMontureValDG
+                    } else {
+                        var remMontureDG = vm.getRemValue($("#Monture_MonturePrix").val() * qteMonture, parseFloat(vm.remMontureDG(), 10), vm.remVerreMontureValDG());
+                        x.valRemMontureDG(remMontureDG);
+                    }
+                    break;
+                case "remVerreODDG":
+                    if (x.remVerreValODDG() == '%' && parseFloat(x.remVerreODDG()) > 100) {
+                        x.remVerreODDG(0);
+                        x.valRemODDG(0);
+                    } else {
+                        var remVerreODDG = vm.getRemValue($("#Verre_OD_Prix").val() * qteOD, parseFloat(vm.remVerreODDG(), 10), vm.remVerreValODDG());
+                        x.valRemODDG(remVerreODDG);
+                    }
+                    break;
+                case "remVerreOGDG":
+                    if (x.remVerreValOGDG() == '%' && parseFloat(x.remVerreOGDG()) > 100) {
+                        x.remVerreOGDG(0);
+                        x.valRemOGDG(0);
+                    } else {
+                        var remVerreOGDG = vm.getRemValue($("#Verre_OG_Prix").val() * qteOG, parseFloat(vm.remVerreOGDG(), 10), vm.remVerreValOGDG());
+                        x.valRemOGDG(remVerreOGDG);
+                    }
+                    break;
+            }
+        };
+
+        x.getRemValue = function (m, r, t) {
+            var temp = 0;
+            switch (t) {
+                case '%':
+                    if (r > 0) {
+                        temp = m * (r / 100); //m * (1 - (t / 100));
+                    }
+                    break;
+                case 'valeur':
+                    if (r > 0) {
+                        temp = r;
+                    }
+                    break;
+            }
+            return temp;
+        };
+
+        x.SelectedMontureChange = function () {
+            console.log(x.montureVal().libelle);
+            console.log(x.montureVal().prix);
+            x.prixMonture(x.montureVal().prix);
+            /*var index = x.listeMonture.indexOf(x.montureVal());
+            alert(index);
+            alert(x.listeMonture.length);
+            console.log(x.listeMonture[index]);
+            if (index >= 0 && x.listeMonture.length > 0) x.prixMonture(x.listeMonture[index].prix);
+            alert(x.prixMonture());*/
+        };
+    }
+
+
+
+    function GetRefMonture() {
+        var _url = "@Url.RouteUrl("_getProduitFromMarque", new { id = "id" })";
+        $.ajax({
+            url: _url.replace("id", $("#Marque").val()),
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                vm.listeMonture.removeAll();
+                if (d.length > 0) {
+                    $.each(d, function (i, val) {
+                        console.log(val);
+                        vm.listeMonture.push({ Ref: val.Ref, Prix: val.Prix, Id: val.Id });
+                    });
+                }
+                if (InitStatut == 0) {
+                    if ("@Model.Monture" != null) {
+                        $("#Monture_MontureId").val("@Model.Monture.MontureProdId");
+                        @*alert("@ViewBag.MontureSelected.Id"); alert("@Model.Monture.MontureId");*@
+                        vm.montureSelected("@Model.Monture.MontureProdId"); @*vm.montureSelected("@ViewBag.MontureSelected.Id");*@
+                    }
+
+                    @*$("#Payement_MontantClient").val("@Model.Payement.MontantClient");*@
+                    @*vm.chargeClient("@Model.Payement.MontantClient");*@
+                    InitStatut = 1;
+                }
+                //alert(vm.listeMonture().length);
+                console.log(vm.listeMonture());
+            },
+            error: function () { }
+        });
+    }
+
+    function ConvertChaine(ch) {
+        console.log(ch.replace(".", ","));
+        return ch.replace(".", ",");
+    }
+
+
+    function AddNewItem(s) {
+        var item = prompt("Veuillez saisir la nouvelle valeur", "");
+        item = ConvertChaine(item);
+        switch (s) {
+            case 'ODAXE':
+                AddPuissance(vm.ODAxe(), vm.ODAxe, item)
+                break;
+            case 'ODSPH':
+                AddPuissance(vm.ODSph(), vm.ODSph, item)
+                break;
+            case 'ODCYCL':
+                AddPuissance(vm.ODCycl(), vm.ODCycl, item)
+                break;
+            case 'ODADD':
+                AddPuissance(vm.ODAdd(), vm.ODAdd, item)
+                break;
+            case 'OGAXE':
+                AddPuissance(vm.OGAxe(), vm.OGAxe, item)
+                break;
+            case 'OGSPH':
+                AddPuissance(vm.OGSph(), vm.OGSph, item)
+                break;
+            case 'OGCYCL':
+                AddPuissance(vm.OGCycl(), vm.OGCycl, item)
+                break;
+            case 'OGADD':
+                AddPuissance(vm.OGAdd(), vm.OGAdd, item)
+                break;
+        }
+    }
+
+    function getPuissanceModel(side) {
+        var tv = ts = "";
+        InitReq++;
+        if (side == "OD") {
+            tv = $("#Verre_OD_Type").val();
+            gv = $("#Verre_OD_GammeVerreId").val();
+        } else {
+            tv = $("#Verre_OG_Type").val();
+            gv = $("#Verre_OG_GammeVerreId").val();
+        }
+
+        $.ajax({
+            url: "@Url.RouteUrl("_getVarieteVerre")",
+            type: "GET",
+            data: { tv: tv, gv: gv },
+            dataType: 'json',
+            success: function (d) {
+                if (side == "OG") {
+                    vm.OGAdd.removeAll();
+                    vm.OGAxe.removeAll();
+                    vm.OGCycl.removeAll();
+                    vm.OGSph.removeAll();
+                } else {
+                    vm.ODAdd.removeAll();
+                    vm.ODAxe.removeAll();
+                    vm.ODCycl.removeAll();
+                    vm.ODSph.removeAll();
+                }
+                if (d.length > 0) {
+                    $.each(d, function (index, val) {
+                        if (side == "OD") {
+                            AddPuissance(vm.ODAdd(), vm.ODAdd, val.Add);
+                            AddPuissance(vm.ODAxe(), vm.ODAxe, val.Axe);
+                            AddPuissance(vm.ODCycl(), vm.ODCycl, val.Cycl);
+                            AddPuissance(vm.ODSph(), vm.ODSph, val.Sph);
+
+                        } else {
+                            AddPuissance(vm.OGAdd(), vm.OGAdd, val.Add);
+                            AddPuissance(vm.OGAxe(), vm.OGAxe, val.Axe);
+                            AddPuissance(vm.OGCycl(), vm.OGCycl, val.Cycl);
+                            AddPuissance(vm.OGSph(), vm.OGSph, val.Sph);
+                        }
+                    });
+                }
+                if (InitReq == 2) {
+                    vm.ODAxeSelected("@Model.Verre.OD.VL.Axe");
+                    vm.ODSphSelected("@Model.Verre.OD.VL.Sph");
+                    vm.ODCyclSelected("@Model.Verre.OD.VL.Cyl");
+                    vm.ODAddSelected("@Model.Verre.OD.Add");
+                    vm.OGAxeSelected("@Model.Verre.OG.VL.Axe");
+                    vm.OGSphSelected("@Model.Verre.OG.VL.Sph");
+                    vm.OGCyclSelected("@Model.Verre.OG.VL.Cyl");
+                    vm.OGAddSelected("@Model.Verre.OG.Add");
+                }
+            },
+            error: function () { }
+        });
+    }
+
+    function AddPuissance(Arr, ArrIndex, item) {
+        if ((Arr.length > 0 && Arr.indexOf(item) === -1) || Arr.length == 0) { ArrIndex.push(item); ArrIndex.sort(); }
+    }
+
+    $("form").submit(function () {
+        $("#Verre_OD_VL_Sph").val(ConvertChaine($('#Verre_OD_VL_Sph').val()));
+        $("#Verre_OD_VL_Cyl").val(ConvertChaine($('#Verre_OD_VL_Cyl').val()));
+        $("#Verre_OD_VL_Axe").val(ConvertChaine($('#Verre_OD_VL_Axe').val()));
+        $("#Verre_OD_VP_Sph").val(ConvertChaine($('#Verre_OD_VP_Sph').val()));
+        $("#Verre_OD_VP_Cyl").val(ConvertChaine($('#Verre_OD_VP_Cyl').val()));
+        $("#Verre_OD_VP_Axe").val(ConvertChaine($('#Verre_OD_VP_Axe').val()));
+        $("#Verre_OD_Add").val(ConvertChaine($('#Verre_OD_Add').val()));
+        $("#Verre_OG_VL_Sph").val(ConvertChaine($('#Verre_OG_VL_Sph').val()));
+        $("#Verre_OG_VL_Cyl").val(ConvertChaine($('#Verre_OG_VL_Cyl').val()));
+        $("#Verre_OG_VL_Axe").val(ConvertChaine($('#Verre_OG_VL_Axe').val()));
+        $("#Verre_OG_VP_Sph").val(ConvertChaine($('#Verre_OG_VP_Sph').val()));
+        $("#Verre_OG_VP_Cyl").val(ConvertChaine($('#Verre_OG_VP_Cyl').val()));
+        $("#Verre_OG_VP_Axe").val(ConvertChaine($('#Verre_OG_VP_Axe').val()));
+        $("#Verre_OG_Add").val(ConvertChaine($('#Verre_OG_Add').val()));
+
+        if (vm.assurance() == 'NAS') {
+            vm.Assureurs.removeAll();
+            //alert(vm.Assureurs.length);
+        }
+
+        var chargeTotal = parseFloat($("#Payement_MontantClient").val(), 10) + vm.ChargeAssuranceTotal();
+        var montantTotal = parseFloat($("#MontantTotal").val(), 10);
+        if ((chargeTotal - montantTotal) != 0) {
+            alertify.alert("ALERT", "Repartition des charges client et assurance invalide.");
+            return false;
+        }
+
+        var ChargeCl = parseFloat($("#Payement_MontantClient").val(), 10);
+        var reductionClient = parseFloat($("#Payement_ReductionClient").val(), 10);
+        if (reductionClient > ChargeCl) {
+            alertify.alert("ALERT", "Reduction client trop importante");
+            $("#Payement_ReductionClient").val(0).focus();
+            return false;
+        }
+    });
+
+    var vm = new CheckValue();
+    ko.applyBindings(vm);
+    </script>
+}

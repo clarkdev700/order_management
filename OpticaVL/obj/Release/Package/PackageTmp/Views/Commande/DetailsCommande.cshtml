@@ -1,0 +1,132 @@
+﻿@model OpticaVL.ViewModel.ModelCommande
+@{
+    ViewBag.Title = "CommandeDisponible";
+}
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5>Identite client</h5>
+            </div>
+            <div class="panel-body">
+               @{ var Identite = Model.Identite;}
+                <div class="row">
+                    <span class="col-md-4">Nom :</span>
+                    <span>@Identite.Nom</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-4">Prenom :</span>
+                    <span class="">@Identite.Prenom</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-4">Contact :</span>
+                    <span>@Identite.Contact</span>
+                </div>
+                @if (Identite.Contact2 != null)
+                {
+                    <div class="row">
+                        <span class="col-md-4">Contact2 :</span>
+                        <span>@Identite.Contact2</span>
+                    </div> 
+                }
+
+                @if (Identite.Email != null)
+                {
+                    <div class="row">
+                        <span class="col-md-4">Email :</span>
+                        <span>@Identite.Email</span>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5>Details Commande</h5>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <span class="col-md-7">Reference :</span>
+                    <span>@Model.RefCmde</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-7">Charge Client :</span>
+                    <span>@Model.ChargeClient</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-7">Charge Assurance :</span>
+                    <span>@Model.ChargeAssurance</span>
+                </div>
+                <!--<div class="row">
+                    <span class="col-md-3"></span>
+                </div>-->
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="row">
+            <article>
+                <h5><strong>MONTURE</strong></h5>
+                <p>
+                    <span class="col-sm-2">Libelle :</span><span><strong>@Model.DetailsMonture.Designation</strong> </span><br />
+                    <span class="col-sm-2">Numero :</span><span><strong>@Model.DetailsMonture.Numero</strong> </span>
+                </p>
+            </article>
+            <hr />
+            <article>
+                <h5><strong>VERRES</strong></h5>
+                <p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            @{var VerresOD = Model.DetailsVerres.OD; }
+                            <h5>OD</h5>
+                            <div>
+                                <span class="col-xs-2"><strong>Add</strong></span>
+                                <span>@VerresOD.Add</span>
+                            </div>
+                            <div>
+                                <span class="col-xs-2"><strong>Type:</strong></span><span>@VerresOD.Type</span> &nbsp;<span>@VerresOD.GammeV</span>
+                            </div>
+                            <table class="table table-bordered table-condensed table-striped">
+                                <tr><th></th><th>Cyl</th><th>Sph</th><th>Axe</th></tr>
+                                <tr><th>VL</th><td>@VerresOD.VL.Cyl</td><td>@VerresOD.VL.Sph</td><td>@VerresOD.VL.Axe&ordm;</td></tr>
+                                <tr><th>VP</th><td> @VerresOD.VP.Cyl</td><td>@VerresOD.VP.Sph </td><td>@VerresOD.VP.Axe&ordm;</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            @{var VerresOG = Model.DetailsVerres.OG; }
+                            <h5>OG</h5>
+                            <div>
+                                <span class="col-xs-2"><strong>Add</strong></span>
+                                <span>@VerresOG.Add</span>
+                            </div>
+                            <div>
+                                <span class="col-xs-2"><strong>Type:</strong></span><span>@VerresOG.Type</span> &nbsp;<span>@VerresOG.GammeV</span>
+                            </div>
+                            <table class="table table-bordered table-condensed table-striped">
+                                <tr><th></th><th>Cyl</th><th>Sph</th><th>Axe</th></tr>
+                                <tr><th>VL</th><td>@VerresOG.VL.Cyl</td><td>@VerresOG.VL.Sph</td><td>@VerresOG.VL.Axe&ordm;</td></tr>
+                                <tr><th>VP</th><td>@VerresOG.VP.Cyl</td><td>@VerresOG.VP.Sph</td><td> @VerresOG.VP.Axe&ordm;</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    @if (Model.DetailsVerres.Teinte != null)
+                    {
+                        <div class="row">
+                            <span class="col-md-1">Teinte :</span>
+                            <span>@Model.DetailsVerres.Teinte</span>
+                        </div>
+                    }
+
+                    @if (Model.DetailsVerres.Nature != null)
+                    {
+                        <div class="row">
+                            <span class="col-md-2">Nature :</span>
+                            <span><strong>@Model.DetailsVerres.Nature</strong> </span>
+                        </div>
+                    }
+                </p>
+            </article>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+﻿@model OpticaVL.ViewModel.ModelVenteRecu
+@using System.Globalization
+@using Developpez.Dotnet
+@{
+    ViewBag.Title = "ProformaModel";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+}
+
+
+@{
+    int i = 0;
+    while (i < 2)
+    {
+        i++;
+        <div class="row" style="margin:25px 15px 10px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+            @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+        </div>
+        <div class="" style="margin-left:94px; margin-right:94px; font-size:17px; margin-bottom:25px;">
+            <div class="row text-center" style="margin-bottom:5px;">
+                <h2 class="text-uppercase"><u>Re&ccedil;u N&ordm; @Model.NumRecu</u></h2>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Client :</strong></span>
+                        <span class="">@(Model.Nom + " " + Model.Prenom)</span>
+                        <!-- <span class="col-xs-5"><strong>Prenom :</strong></span>
+                         <span>@Model.Prenom</span>  -->
+                    </div>
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Ref. Facture :</strong></span>
+                        <span>@Model.ReferenceVente</span>
+                    </div>
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Montant Facture :</strong></span>
+                        <span>@Model.MontantTotal.ToString("N0", CultureInfo.CurrentCulture) FCFA</span>
+                    </div>
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Charge client :</strong></span>
+                        <span>@Model.ChargeClient.ToString("N0", CultureInfo.CurrentCulture) FCFA</span>
+                    </div>
+                    @if (Model.ChargeAssurance > 0)
+                    {
+                        <div class="row pmarge">
+                            <span class="col-xs-5"><strong>Charge Assurance :</strong></span>
+                            <span>@Model.ChargeAssurance.ToString("N0", CultureInfo.CurrentCulture) FCFA</span>
+                        </div>
+                    }
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Reduction client :</strong></span>
+                        <span><strong>@Model.ReductionClient FCFA</strong></span>
+                    </div>
+                    <div class="row pmarge" style="background-color: #ccc;">
+                        <span class="col-xs-5"><strong>Montant verse :</strong></span>
+                        <span><strong>@Model.MontantVerse.ToString("N0", CultureInfo.CurrentCulture) FCFA</strong></span>
+                    </div>
+                    <div class="row pmarge">
+                        <span class="col-xs-5"><strong>Montant Total verse :</strong></span>
+                        <span>@Model.MontanTotalVerse.ToString("N0", CultureInfo.CurrentCulture) FCFA</span>
+                    </div>
+                    <div class="row pmarge" style="background-color: #ddd;">
+                        <span class="col-xs-5"><strong>Reste &agrave; payer :</strong> </span>
+                        <span>
+                            <strong>
+                                @Model.ResteApayerClient
+                                @if (Model.ResteApayerClient != "Facture Soldée")
+                                { <span>FCFA</span>}
+                            </strong>
+                        </span>
+                    </div>
+                </div>
+                @if (Model.Reglements.Count > 0)
+                {
+                    <div class="col-md-4">
+                        <h4 class=""><u><strong>Historique R&egrave;glement (FCFA)</strong></u></h4>
+                        <ul style="list-style:none;">
+                            @foreach (var p in Model.Reglements)
+                            {
+                                <li style="margin-left:-50px;">
+                                    <span class="col-xs-4">@p.Date</span>
+                                    <span class="col-xs-5">@p.Montant</span>
+                                    <span>@p.Mregl.Substring(0, 3)</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+            </div>
+            <div class="row pmarge">
+                <div class="col-sm-3 pull-right" style="margin-top:5px; margin-bottom:20px;">
+                    <h3>Signature</h3>
+                </div>
+            </div>
+            @if (i == 1)
+            {
+                <hr />
+            }
+        </div>
+
+    }
+}

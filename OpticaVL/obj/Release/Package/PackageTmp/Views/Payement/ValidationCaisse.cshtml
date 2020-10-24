@@ -1,0 +1,198 @@
+﻿@model OpticaVL.ViewModel.QReglementModel
+@{
+    ViewBag.Title = "ValidationCaisse";
+}
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">valider un règlement</li>
+}
+
+<div class="row">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class="form-inline"}))
+    {
+        <div class="form-group">
+            @Html.Label("Debut")
+            <input type="date" class="form-control" id="Deb" name="Deb" value="@Model.Deb.Value.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="form-group">
+            @Html.Label("Fin")
+            <input type="date" class="form-control" id="End" name="End" value="@Model.End.Value.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="form-group">
+            @Html.Label("Lib")
+            @Html.DropDownList("Qtype", (SelectList)ViewBag.Qtype, new { @class = "form-control" })
+        </div>
+       <div class="form-group">
+            @Html.Label("")
+            <input type="text" class="form-control" id="_name" name="_name" value="" placeholder="Saisir nom ou prénom du client" />
+        </div>
+        <div class="form-group">
+            <button type="button" onclick="getListeReglement();" class="btn btn-default" id="btnOK">OK</button>
+        </div>
+    }
+</div>
+<div class="row">
+    <p class="pull-right"><button class="btn btn-primary" id="btnValider" data-bind="visible:btnValider">Valider</button></p>
+    <table class="table table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ref. Facture</th>
+                <th>Ref. Recu Caisse</th>
+                <th>Montant vers&eacute;</th>
+                <th>Identit&eacute;</th>
+                <th>Valider</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:listePayement">
+            <tr>
+                <td data-bind="text:date"></td>
+                <td data-bind="text:refFacture"></td>
+                <td data-bind="text:idPayement"></td>
+                <td data-bind="text:montantVerse"></td>
+                <td data-bind="text:identite"></td>
+                <td> <span><input type="checkbox" data-bind="checked:valider, click: $root.UpdateLigne()" /></span></td>
+                <td><a href="#" data-bind="click:$parent.PrintRecu" title="imprimer un recu de reglement"><i class="glyphicon glyphicon-print" data-bind="visible:(valider && source != 'assurance')"></i></a>
+                    <img src="~/DataDir/ajaxfacture.gif" hidden data-bind="attr:{id:idQueryWait}" /> </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--<table>
+        <tbody data-bind="foreach:maliste">
+            <tr>
+                <td data-bind="text:Id"></td>
+                <td data-bind="text:valeur"></td>
+                <td><input type="checkbox" data-bind="checked:statut, click: $parent.UpdateLigne()" /></td>
+            </tr>
+        </tbody>
+    </table>-->
+</div>
+@section scripts{
+    
+<script src="~/Scripts/alertify.min.js"></script>
+    <script type="text/javascript">
+        var arrToUp = [];
+        var arr2 = [];
+
+        function getListeReglement() {
+            vm.listePayement.removeAll();
+             $.ajax({
+                    url:"@Url.RouteUrl("_listeReglement")",
+                    type:"POST",
+                    data: JSON.stringify({ Deb: $('#Deb').val(), End: $('#End').val(), Qtype: $('#Qtype').val(), _name:$("#_name").val() }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType:"json",
+                    success:function(d) {
+                        if (d.length > 0) {
+                            $.each(d, function (i, val) {
+                                console.log(val);
+                                var idwaitPrint = "waitprint_" + val.IdPayement;
+                                var _mtt = val.MontantVerse;// new Intl.NumberFormat("fr-FR").format(val.MontantVerse);
+                                vm.listePayement.push({
+                                    idPayement: val.IdPayement, identite: val.Identite, idFacture: val.IdFacture, refRecuCaisse: val.RefRecuCaisse, refFacture: val.RefFacture, montantVerse: _mtt, source: val.Source, type: val.Type, date: val.Date, valider: val.Valider, idQueryWait: idwaitPrint
+                                });
+                            });
+                            vm.btnValider(true);
+                        } else
+                            vm.btnValider(false);
+                },
+                error: function(){}
+            });
+       }
+
+        $(function () {
+            $("#btnOK").click();
+            $("#Caisse").addClass("active");
+            $("#ValidateReglement").addClass("active");
+        });
+
+        $("#btnValider").click(function () {
+            $.ajax({
+                url: "@Url.RouteUrl("_caisseValidationPoste")",
+                type: "POST",
+                data: JSON.stringify({_vcm: vm.listePayement() }),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (d) {
+                    alertify.set("notifier", "position", "top-right");
+                    if (d.Statut == 500) {
+                        alertify.error(d.Message);
+                    } else { 
+                        alertify.success("Validation effectuée avec succès!");
+                        $("#Qtype").val(2);
+                        $("#btnOK").click();
+                    }
+                },
+                error: function () { }
+            });
+        });
+
+        function ViewModel() {
+         var x = this;
+         /*x.idPayement = ko.observable();
+         x.idFacture = ko.observable();
+         x.refRecuCaisse = ko.observable();
+         x.refFacture = ko.observable();
+         x.montantVerse = ko.observable();
+         x.source = ko.observable();
+         x.type = ko.observable();
+         x.date = ko.observable();
+         x.valider = ko.observable();*/
+         x.btnValider = ko.observable(false);
+         x.listePayement = ko.observableArray([]);
+         x.PrintRecu = function ($parent) {
+        $('#waitprint_' + $parent.idPayement).show();
+        var _url = "@Url.RouteUrl("_generateRecuPaiement", new { id="id"})";
+        if($parent.type == "vente") var _url = "@Url.RouteUrl("_generateRecuVente", new { id = "id" })";
+        _url = _url.replace("id", $parent.idPayement);
+             $.ajax({
+                 url:_url,
+                 type:"GET",
+                 dataType: "json",
+                 success: function(d){
+                     if (d.statut == "OK") {
+                         $('#waitprint_' + $parent.idPayement).hide();
+                         var filename = "../../DataDir/recuPaiement.pdf";
+                         if ($parent.type == "vente") filename = "../../DataDir/recuPaiementvente.pdf";
+                         window.open(filename, "_blank");
+                     } else { alertify.alert("INFO", "Une erreur s'est produite lors de la generation du reçu de paiement. \n Veuillez ressayer plus tard."); $('#waitprint_' + $parent.idPayement).hide(); }
+                 },
+                 error: function(){}
+             });
+         };
+
+         x.UpdateLigne = function ($parent) {
+             console.log(x.listePayement());
+             console.log(arrToUp.length);
+             if (arrToUp.length > 0)
+             {
+                 //alert("IN");
+                 for (var i = 0; i < arrToUp.length; i++) {
+                     //alert(i);
+                     console.log($parent);
+                     /*if ($parent.idPayement == arrToUp[i].Id) {
+                         console.log($parent.valider);
+                         arrToUp[i].Valider = $parent.valider;
+                         //x.listePayement()[i].;
+                         console.log("vf");
+                         break;
+                     }*/
+                 }
+             } else {
+                 console.log($parent);
+                 /*arrToUp.push({ Id: $parent.idPayement, Valider: $parent.valider });
+                 console.log("cd");*/
+             }
+             console.log(arrToUp);
+         };
+        };
+        var vm = new ViewModel();
+        ko.applyBindings(vm);
+    </script>
+    }

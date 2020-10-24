@@ -1,0 +1,92 @@
+﻿@model List<OpticaVL.ViewModel.CatProduit>
+@section headerStyle {
+    
+<link href="~/Content/jqx.base.css" rel="stylesheet" />
+    }
+<div id="jqxTree">
+    <ul>
+        @foreach (var cat in Model)
+        {
+            <li item-expanded="true">
+                <span>@cat.Categorie</span>
+                <ul>
+                    @foreach (var item in cat.Produits)
+                    {
+                        <li>
+                            <span>@item.LibMarque</span>
+                            <ul>
+                                @foreach (var mp in item.MarqueProds)
+                                {
+                                    <li>
+                                        <span>
+                                            @mp.Designation
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </li>
+
+        }
+        <!--<li>
+            <span>VERRES</span>
+            <ul>
+                <li>
+                    <span>ORGANIQUE</span>
+                    <ul>
+                        <li>
+                            <span>PROGRESSIF</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span>UNIFOCAUX</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <span>MINERAUX</span>
+                    <ul>
+                        <li>
+                            <span>PROGRESSIF</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span>UNIFOCAUX</span>
+                            <ul>
+                                <li>Cylindrique</li>
+                                <li>Spherique</li>
+                                <li>Plan</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>-->
+    </ul>
+</div>
+
+@*section scripts
+{
+<script src="~/Scripts/jqxcore.js"></script>
+<script src="~/Scripts/jqxscrollbar.js"></script>
+<script src="~/Scripts/jqxpanel.js"></script>
+<script src="~/Scripts/jqxtree.js"></script>
+<script type="text/javascript">
+    $("#jqxTree").jqxTree({ /*height:'50%', width:'50%'*/});
+    </script>
+}*@

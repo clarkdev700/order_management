@@ -1,0 +1,35 @@
+﻿@using OpticaVL.Models;
+@using Microsoft.AspNet.Identity;
+@{
+    ViewBag.Title = "Gérer le compte";
+}
+
+@section NavigationTitle{
+    Gestion Compte utilisateur
+}
+
+@section filedeNavigation{
+    <li class="active">Changement de mot de passe</li>
+}
+
+<p class="text-success text-center">@ViewBag.StatusMessage</p>
+<div class="row">
+    <div class="col-md-12">
+        @if (ViewBag.HasLocalPassword)
+        {
+            @Html.Partial("_ChangePasswordPartial")
+        }
+        else
+        {
+            @Html.Partial("_SetPasswordPartial")
+        }
+
+        @*<section id="externalLogins">
+            @Html.Action("RemoveAccountList")
+            @Html.Partial("_ExternalLoginsListPartial", new { Action = "LinkLogin", ReturnUrl = ViewBag.ReturnUrl })
+        </section>*@
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

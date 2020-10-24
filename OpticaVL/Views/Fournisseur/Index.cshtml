@@ -1,0 +1,57 @@
+﻿@model List<OpticaVL.Models.Fournisseur>
+@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Fournisseur
+}
+
+@section filedeNavigation{
+    <li class="active">liste des fournisseurs</li>
+}
+
+<div class="row">
+    <p>
+        <a href="@Url.RouteUrl("_addFournisseur")" class="btn btn-primary btn-sm">Ajouter</a>
+    </p>
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Contat</th>
+                <th>Contact2</th>
+                <th>Email</th>
+                <th>Adresse</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model)
+            {
+                 <tr>
+                     <td>@f.Code</td>
+                     <td>@f.Nom</td>
+                     <td>@f.Contact</td>
+                     <td>@f.Contact2</td>
+                     <td>@f.Email</td>
+                     <td>@f.Adresse</td>
+                     <td>
+                         <a href="@Url.RouteUrl("_updateFournisseur", new { id=f.Id})"><i class="glyphicon glyphicon-edit"></i></a> |
+                         <a href="#" class="text-danger" title="Supprimer"><i class="glyphicon glyphicon-remove-circle"></i></a>
+                     </td>
+                </tr>
+            }
+           
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script>
+        $("#Parametre").addClass("active");
+        $("#fournisseur").addClass("active");
+    </script>
+}
+

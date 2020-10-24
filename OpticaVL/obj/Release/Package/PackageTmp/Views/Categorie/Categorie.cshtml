@@ -1,0 +1,56 @@
+﻿@model OpticaVL.Models.Categorie
+@{
+    ViewBag.Title = "Categorie";
+}
+
+@section NavigationTitle{
+    Categories
+}
+
+@section filedeNavigation{
+    <li><a href="#">categories</a></li>
+}
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-5">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                @Html.ValidationSummary(true)
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Code") @Html.ValidationMessage("Code", new { @class="text-danger"})
+                    @Html.TextBox("Code", Model.Code, new { @class = "form-control" })
+                   
+                </div>
+                <div class="form-group">
+                    @Html.Label("Libelle") @Html.ValidationMessage("Libelle", new { @class = "text-danger" })
+                    @Html.TextBox("Libelle", Model.Libelle, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <button type="submit"class="btn btn-default">Valider</button>
+                    <a href="#" class="btn btn-link">Annuler</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="row">
+        @Html.Action("Index")
+    </div>
+</div>
+
+@section scripts{
+@Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $("#Parametre").addClass("active");
+        $("#categorie").addClass("active");
+    </script>
+    }
+

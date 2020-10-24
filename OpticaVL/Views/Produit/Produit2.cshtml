@@ -1,0 +1,84 @@
+﻿@model OpticaVL.Models.Produit
+@{
+    ViewBag.Title = "Produit";
+}
+
+@section NavigationTitle{
+    Produits
+}
+
+@section filedeNavigation{
+    <li><a href="#">produits</a></li>
+    <li class="active">ajouter un produit</li>
+}
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-6">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                @Html.ValidationSummary(true, "", new { @class="text-danger"})
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Categorie") @Html.ValidationMessage("CategorieId",new { @class = "text-danger" })
+                    @Html.DropDownList("CategorieId", (SelectList)ViewBag.Categorie, "--Selectionnez une categorie--", new { @class = "form-control", onchange = "updateView()" })
+                </div>
+
+                <div class="form-group">
+                    @Html.Label("Marque") @Html.ValidationMessage("MarqueId", new { @class="text-danger"})
+                    @Html.DropDownList("MarqueId", (SelectList)ViewBag.Marque, "--Selectionnez une marque--", new { @class = "form-control", onchange = "getMarqueValue(this);" })
+                </div>
+
+                <div class="" id="monture" data-bind="visible:monture">
+                    <div class="form-group">
+                        @Html.Label("Reference")
+                        @Html.TextBox("RefProd", @Model.RefProd, new { @class = "form-control" })
+                        @*Html.ValidationMessage("Numero")*@
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.Label("Designation") @Html.ValidationMessage("Designation", new { @class = "text-danger" })
+                    @Html.TextBox("Designation", @Model.Designation, new { @class = "form-control" })
+                </div>
+
+                <div class="form-group">
+                    @Html.Label("Prix") @Html.ValidationMessage("Prix", new { @class="text-danger"})
+                    @Html.TextBox("Prix", @Model.Prix, new { @class = "form-control" })
+                    
+                </div>
+                <div class="form-group">
+                    @Html.Label("Quantité")
+                    @Html.TextBox("QteStock", @Model.QteStock, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @*Html.Label("Stock Seuil")
+                    @Html.TextBox("QteSeuil", @Model.QteSeuil, new { @class = "form-control" })*@
+                    @Html.Hidden("QteSeuil", 20)
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn">Valider</button>
+                    <a href="@Url.RouteUrl("_listeProduits")" class="btn">Annuler</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts {
+@Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $("#indexProduit").addClass("active");
+        $("#addProduit").addClass("active");
+
+        function getMarqueValue(){
+            if ($("#MarqueId").val() != "") 
+                $("#Designation").val($("#MarqueId :selected").text());
+            else
+                $("#Designation").val("");
+        }
+    </script>
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>jQWidgets_Framework</id>
+    <version>3.8.2</version>
+    <title>jQWidgets</title>
+    <authors>jQWidgets</authors>
+    <owners>jQWidgets</owners>
+    <licenseUrl>http://www.jqwidgets.com/license/</licenseUrl>
+    <projectUrl>http://www.jqwidgets.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>jQWidgets is an advanced jQuery and HTML5 UI framework.
+
+jQWidgets provides a comprehensive solution for building professional web sites and mobile apps. It is built entirely on open standards and technologies like HTML5, CSS, Javascript and jQuery. jQWidgets enables responsive web development and helps you create apps and websites that look beautiful on desktops, tablets and smart phones.
+
+jQWidgets is a feature complete framework with professional touch-enabled jQuery widgets, themes, input validation, drag &amp; drop plug-ins, data adapters, built-in WAI-ARIA accessibility, internationalization and MVVM support.</description>
+    <releaseNotes>jQWidgets v3.8.2 Release, Aug-06-2015
+
+What's New:
+
+- Added Support for Microsoft Edge Web Browser.
+What's Fixed:
+
+- Fixed an issue in jqxRibbon regarding an incorrect class applied to the top and bottom scroll button arrows.
+- Fixed an issue in jqxSlider when the 'min' and 'max' properties are dynamically set.
+- Fixed an issue in jqxSwitchButton regarding the removal of event handlers.
+- Fixed an issue in jqxGrid regarding the Checkbox column Toggle behavior.
+- Fixed an issue in jqxGrid regarding the deleterow method and editing after that.
+- Fixed an issue in jqxGrid regarding the validation popup's positioning when the editing is full row.
+- Fixed an issue in jqxGrid regarding the destroying of filter widgets on data source change.
+- Fixed an issue in jqxGrid regarding the cells rendering when custom filter is applied and removed dynamically through API.
+- Fixed an issue in jqxDateTimeInput regarding the switching of calendar views.
+- Fixed an issue in jqxDateTimeInput regarding the Time Popup inputs formatting.
+- Fixed an issue in jqxDateTimeInput regarding the Null dates handling.
+- Fixed an issue in jqxDateTimeInput regarding the Spin Buttons behavior in the Time Popup.
+- Fixed an issue in jqxRibbon regarding an incorrect class applied to the top and bottom scroll button arrows.
+- Fixed an issue in jqxSlider when the 'min' and 'max' properties are dynamically set.
+- Fixed an issue in jqxSwitchButton regarding the removal of event handlers.
+- Fixed an issue in jqxToolBar regarding its integration in a jqxSplitter panel.
+- Fixed an issue in jqxComplexInput regarding the methods getReal and getImaginary when the decimalNotation.
+- Fixed an issue in jqxAngular plugin regarding the Angular UI Router.
+- Fixed an issue in jqxNumberInput with Paste from browser's context menu.
+- Fixed an issue in jqxListBox regarding the checkItem, uncheckItem and indeterminateItem methods when Filter is applied.</releaseNotes>
+    <dependencies>
+      <dependency id="jQuery" version="1.7" />
+    </dependencies>
+  </metadata>
+</package>

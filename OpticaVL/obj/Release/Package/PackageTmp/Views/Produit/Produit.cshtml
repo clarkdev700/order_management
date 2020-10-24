@@ -1,0 +1,167 @@
+﻿@model OpticaVL.ViewModel.ProduitViewModel
+@{
+    ViewBag.Title = "Produit";
+}
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-6">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                @Html.ValidationSummary(true)
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    @Html.Label("Categorie")
+                    @Html.DropDownList("CategorieId", (SelectList)ViewBag.Categorie, "--Selectionnez une categorie--", new { @class = "form-control", onchange = "updateView()" })
+                    @Html.ValidationMessage("CategorieId")
+                </div>
+                <div class="" id="monture" data-bind="visible:monture">
+                    <div class="form-group">
+                        @Html.Label("Reference")
+                        @Html.TextBox("ModelMonture.Reference", @Model.ModelMonture.Reference, new { @class = "form-control" })
+                        @*Html.ValidationMessage("Numero")*@
+                    </div>
+                </div>
+                
+                <div id="divers" data-bind="visible:divers">
+                    <div class="form-group">
+                        @Html.Label("Numero")
+                        @Html.TextBox("ModelDivers.Numero", @Model.ModelDivers.Numero, new { @class = "form-control" })
+                        @*Html.ValidationMessage("Numero")*@
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Reference")
+                        @Html.TextBox("ModelDivers.Reference", @Model.ModelDivers.Reference, new { @class = "form-control" })
+                        @Html.ValidationMessage("ModelDivers.Reference")
+                    </div>
+                </div>
+                
+
+                <div class="form-group">
+                    @Html.Label("Designation")
+                    @Html.TextBox("Designation", @Model.Designation, new { @class = "form-control" })
+                    @Html.ValidationMessage("Designation")
+                </div>
+                
+                
+                <div class="form-group">
+                    @Html.Label("Prix")
+                    @Html.TextBox("Prix", @Model.Prix, new { @class = "form-control" })
+                    @Html.ValidationMessage("Prix")
+                </div>
+                <div class="form-group">
+                    @Html.Label("Stock")
+                    @Html.TextBox("QteStock", @Model.QteStock, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    @Html.Label("Stock Seuil")
+                    @Html.TextBox("QteSeuil", @Model.QteSeuil, new { @class = "form-control" })
+                </div>
+               
+                <div class="form-group">
+                    @Html.Label("Marque")
+                    @Html.DropDownList("MarqueId", (SelectList)ViewBag.Marque, "--Selectionnez une marque--", new { @class = "form-control" })
+                    @Html.ValidationMessage("MarqueId")
+                </div>
+ 
+                <div id="verre" data-bind="visible:verre">
+                    <div class="form-group">
+                        @Html.Label("Type de Verre")
+                        @Html.DropDownList("ModelVerre.GammeVerreId", (SelectList)ViewBag.GammeVerre, "-- Selectionnnez le type de verre --", new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Nature verre")
+                        @Html.DropDownList("ModelVerre.Nature", (SelectList)ViewBag.NatureVerre, "--Selectionnez une nature--", new { @class = "form-control" })
+                        @Html.ValidationMessage("MarqueId")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Type verre")
+                        @Html.DropDownList("ModelVerre.Type", (SelectList)ViewBag.TypeVerre, "--Selectionnez un type--", new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Format verre")
+                        @Html.DropDownList("ModelVerre.Format", (SelectList)ViewBag.FormatVerre, "--Selectionnez un format --", new { @class = "form-control" })
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-6" style="padding-left:0; padding-right:5px;margin-bottom:15px;">
+                            @Html.Label("Puissance")
+                            <input  name="ModelVerre.Puissance" id="ModelVerre_Puissance" class="form-control" value="@Model.ModelVerre.Puissance" />
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 0; padding-right: 5px; margin-bottom: 15px;">
+                            @Html.Label("Angle")
+                            <input type="number"  name="ModelVerre.Angle" id="ModelVerre_Angle" class="form-control" value="@Model.ModelVerre.Angle" />
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+
+
+                <div class="form-group">
+                    <button type="submit" class="btn">Valider</button>
+                    <a href="#" class="btn">Annuler</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts {
+
+    <script src="~/Scripts/knockout-3.3.0.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            //console.log($("#ModelVerre.Puissance").val());
+            $("#ModelVerre_Puissance").spinner({ step: 0.25, culture: "fr" });
+            
+            if (parseInt($("#CategorieId").val(), 10) > 0) {
+                $("#CategorieId").change();
+            }
+        });
+
+        $("form").submit(function () {
+            alert($("#ModelVerre_Puissance").val());
+            var spinnerval = $("#ModelVerre_Puissance").val();
+            $("#ModelVerre_Puissance").val(spinnerval.replace(".", ","));
+            alert($("#ModelVerre_Puissance").val());
+            //return false;
+        });
+
+        function updateView() {
+            //alert($("#CategorieId").val());
+            switch($("#CategorieId").val()) {
+                case "4":
+                    //alert($("#CategorieId").val());
+                    vm.divers(true);
+                    vm.monture(false);
+                    vm.verre(false);
+                    break;
+                case "2":
+                case "3":
+                    //VERRE
+                    vm.divers(false);
+                    vm.monture(false);
+                    vm.verre(true);
+                    break;
+                case "1":
+                    //MONTURE
+                    vm.divers(false);
+                    vm.monture(true);
+                    vm.verre(false);
+                    break;
+            }
+        }
+
+        var vm = {
+            monture: ko.observable(false),
+            divers: ko.observable(false),
+            verre: ko.observable(false)
+        }
+
+        ko.applyBindings(vm);
+    </script>
+    }
+

@@ -1,0 +1,328 @@
+﻿@model OpticaVL.Models.EntreeStock
+@{
+    ViewBag.Title = "Stock";
+}
+
+@{string designation = "";}
+
+@section headerStyle {
+    <link href="~/Content/jqx.base.css" rel="stylesheet" />
+}
+
+@section NavigationTitle{
+    Stock
+}
+
+@section filedeNavigation{
+    <li><a href="#">Stock</a></li>
+    <li class="active">ajouter une entree de stock</li>
+}
+
+    <div class="row">
+        <div class="col-lg-4" data-bind="enable:treeState">
+            @Html.Action("Cat", "Produit")
+
+        </div>
+        <div class="col-lg-6">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    @Html.ValidationSummary(true, "",new { @class="text-danger"})
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="">
+                            <span class="col-xs-2">Stock:</span>
+                            <span data-bind="text:QteStock" class="col-xs-">@Model.Produit.QteStock</span>
+                        </div>
+                    </div>
+                    <div data-bind="visible:statutVerre">
+                        <div class="row">
+                            <div class="form-group col-sm-6">
+                                @Html.Label("Gamme verre")
+                                @Html.DropDownList("Gammeverre", (SelectList)ViewBag.GammeVerre, "--Selectionnez un type de verre--", new { @class = "form-control" })
+                            </div>
+                            <div class="form-group col-sm-6">
+                                @Html.Label("Marque")
+                                @Html.DropDownList("Marque", (SelectList)ViewBag.Marque, "--Selectionnez la marque--", new { @class = "form-control" })
+                            </div>
+                        </div>
+                        @*<div class="row">
+                            <div class="form-group col-sm-6">
+                                @Html.Label("Puissance")
+                                @Html.DropDownList("Puissance", (SelectList)ViewBag.Puissance, "--Selectionnez une puissance--", new { @class = "form-control" })
+                            </div>
+                            <div class="form-group col-sm-6">
+                                @Html.Label("Angle")
+                                @Html.DropDownList("Angle", (SelectList)ViewBag.Angle, "--Selectionnez un angle--", new { @class = "form-control" })
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="form-group col-sm-2 pull-right"><button class="btn" type="button" onclick="$('#jqxTree').select();">OK</button></div>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Ref produit") <span id="errRefProd" class="text-danger" hidden>R&eacute;f&eacute;rence de produit obligatoire</span>
+                       
+                        @if (Model.ProduitId > 0 && Model.Produit != null)
+                        {
+                            var prod = Model.Produit;
+                            var prodModel = new OpticaVL.ViewModel.ProduitModel{ Designation = prod.Designation, RefProd = prod.RefProd, Categorie = prod.Categorie.Libelle  };
+                              designation = new OpticaVL.Controllers.BaseController().FormatDesignation(prodModel);
+                        }
+                        @Html.TextBox("refprod", null, new { @class = "form-control", @data_bind = "value:refprod, enable:false, disable:true" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Date reception")
+                        <input type="date" value="@Model.Date.ToString("yyyy-MM-dd")" name="Date" id="Date" required class="form-control" />
+                    </div>
+                    @Html.Hidden("FournisseurId", 1)
+                    @*<div class="form-group">
+                        @Html.Label("Fournisseur")
+                        @Html.DropDownList("FournisseurId", (SelectList)ViewBag.Fournisseur, "--Selectionnez votre fournisseur--", new { @class = "form-control" })
+                        @Html.ValidationMessage("FournisseurId")
+                    </div>*@
+                    <div class="form-group">
+                            @Html.Hidden("ProduitId", @Model.ProduitId, new { @data_bind = "value:Idprod" })
+                            @*@Html.Label("Produit")
+                            @Html.TextBox("ProduitId", null, new { @class = "form-control", @data_bind = "value:Idprod, visible:false" })
+                            @Html.DropDownList("ProduitId", (SelectList)ViewBag.Produit, "--Selectionnez un produit--", new { @class = "form-control" })
+                            @Html.ValidationMessage("ProduitId")*@
+                        </div>
+                    <div class="form-group">
+                        @Html.Label("Quantité") <span class="text-danger" id="errQte" hidden>Champ obligatoire</span>
+                        @Html.TextBox("Qte", @Model.Qte, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Valider</button>
+                        <a href="@Url.RouteUrl("_inventaireStock")" class="btn">Annuler</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+@section scripts {
+@Scripts.Render("~/Scripts/js_")
+@Scripts.Render("~/bundles/jqueryval") 
+    <script type="text/javascript">
+        var catProdTree = [];
+        var monture = divers = verre = [];
+        $("#Stock").addClass("active");
+        $("#mouvementStock").addClass("active");
+
+        $("form").submit(function () {
+            var qte = parseInt($("#Qte").val(), 10);
+            if ($("#refprod").val() == "") { $("#errRefProd").show(); return false; } else { $("#errRefProd").hide(); }
+            if (qte == 0) {
+                $("#errQte").show();
+                return false;
+            } else { $("#errQte").hide(); }  
+        });
+        $(function () {
+        //var catArray = ["divers", "monture", "verre"];
+        @*var urlQuery = "@Url.RouteUrl("_getListProductByCat", new { categorie = "categorie"})";*@
+        /*for (var i = 0; i < 3; i++)
+        {
+            var _url = urlQuery.replace("categorie", _myCatArr[i].toLowerCase());
+            $.ajax({
+                url: _url,
+                type: "GET",
+                dataType: "json",
+                success: function (d) {
+                    var temp  = [];
+                    if (d.Produits.length > 0) {
+                        $.each(d.Produits, function (index, val) {
+                            temp.push({ Id: val.Id, Designation: val.Designation.toLowerCase(), Prix: val.Prix, QteStock: val.QteStock, Marque: val.Marque.toLowerCase() });
+                        });
+                        switch (d.LibCat) {
+                            case "monture":
+                                monture = temp;
+                                break;
+                            case "verre":
+                                verre = temp;
+                                break;
+                            case "divers":
+                                divers = temp;
+                                break;
+                        }
+                        console.log(temp);
+                    }
+                },
+                error: function(){}
+            });
+        }*/
+    });
+
+    $.ajax({
+        url: "@Url.RouteUrl("_listeProduitCat")",
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                if (d.length > 0) {
+                    $.each(d, function (index, valeur) {
+                        vm.catprod.push({ Categorie: valeur.Categorie, Produits: valeur.Produits });
+                        /*$.each(valeur.Produits, function (x, val) {
+                            $.each(val.MarqueProds, function (x1, val1) {
+                                catProdTree.push({ Id: val1.Id, RefProd: val1.RefProd, Prix: val1.Prix, Designation: val1.Designation, QteStock: val1.QteStock });
+                            });
+                        });*/
+                    }); /*console.log(catProdTree);*/ //console.log(vm.catprod);
+                    $("#jqxTree").jqxTree({ height: 'auto'/*, width: 245 */ });
+                    //$('#jqxTree').jqxTree('expandAll');
+                }
+            },
+            error: function() {}
+        });
+
+        $("#jqxTree").on('select', function (e) {
+            var args = e.args;
+            var p0 = p1 = p2 = null;
+            var p0val = p1val = p2val = null;
+            vm.Idprod(0);
+            vm.refprod(null);
+            vm.QteStock(0);
+            //var item = $("#jqxTree").jqxTree('getItem', args.element);
+            //var libToSeach = item.label;
+            //var p2 = item.parentElement; //parent nivo 2
+            //var p2Item = $("#jqxTree").jqxTree('getItem', p2);
+            //var p1 = p2Item.parentElement;
+
+            var item = $('#jqxTree').jqxTree('getSelectedItem');
+            //alert(item.label);
+            if (item.parentElement != null)
+            {
+                //recuperer le parent 2
+                var p2 = item.parentElement;
+                var p2Item = $("#jqxTree").jqxTree('getItem', p2);
+                p2val = p2Item.label;
+            }
+
+            if (p2 != null && p2Item.parentElement != null)
+            {
+                var p1 = p2Item.parentElement;
+                var p1Item = $("#jqxTree").jqxTree('getItem', p1);
+                p1val = p1Item.label;
+            }
+
+            if (p1 != null && p1Item.parentElement != null)
+            {
+                var p0 = p1Item.parentElement;
+                var p0Item = $("#jqxTree").jqxTree('getItem', p0);
+                p0val = p0Item.label;
+            }
+
+            //alert("p0" + p0val); alert("p1" + p1val); alert("p2" + p2val);
+            if (p0val != null)
+            {
+                // cas des verres
+                vm.statutVerre(true);
+                var format = item.label.substring(0, 1);
+                var nature = p1val.substring(0,1);
+                var type = p2val.substr(0,1);
+                var gamme = $("#Gammeverre").val();
+                var puissance = $("#Puissance").val();
+                var angle = $("#Angle").val();
+                var marque = $("#Marque").val();
+                var _designation = gamme + "(" + nature + type + format + "-[" + puissance + "]-" + angle + "°)";
+                //getElementValue(verre, _designation, marque);
+            } else if (p1val != null)
+            {
+                // cas de monture ou produit divers
+                vm.statutVerre(false);
+               /* switch (p1val.toUpperCase()) {
+                    case "DIVERS":
+                        //console.log("FFF");
+                        getElementValue(divers, item.label, p2val);
+                        break;
+                    case "MONTURE":
+                        getElementValue(monture, item.label, p2val);
+                        break;
+                }*/
+                getElementValueBis(p1val.toUpperCase(),item.label, p2val);
+            }
+            //alert(item2.parentElement);
+            /*console.log(p1);
+            var p1Item = $("#jqxTree").jqxTree('getItem', p1);
+            var p0 = p1Item.parentElement;
+            var p0Item = $("#jqxTree").jqxTree('getItem', p0);
+            if (_myCatArr.indexOf(item.label) > -1)
+            {
+
+            }
+            alert('P2 :'+p2Item.label);
+            alert("P1 :" + p1Item.label);
+            alert("p0 :" + p0Item.label);*/
+           // getElementValue(libToSeach);
+        });
+
+        /*function getElementValue(myarr, libelle, marque) {
+            console.log(myarr);
+            console.log(libelle);
+            for (i = 0 ; i < myarr.length; i++) {
+                console.log(myarr[i].Designation);
+                //alert(libelle); alert(marque);
+                if (myarr[i].Designation == libelle.toLowerCase() && myarr[i].Marque == marque.toLowerCase()) {
+                    vm.Idprod(myarr[i].Id);
+                    vm.refprod(myarr[i].Designation);
+                    vm.QteStock(myarr[i].QteStock);
+                    console.log(vm.Idprod());
+                    console.log(vm.refprod());
+                    break;
+                }
+            }
+        }*/
+
+        function getElementValueBis(Categorie,libelle, marque) {
+            //console.log(myarr);
+            //console.log(libelle);
+            //console.log(vm.catprod());
+            var vmCatLength = vm.catprod().length;
+            //console.log(libelle+' bis');
+            for (i = 0; i < vmCatLength; i++) {
+                //console.log('i ' + i);
+                //console.log(vm.catprod()[i].Categorie);
+                if (vm.catprod()[i].Categorie.toUpperCase() == Categorie) {
+                    var prodsLength = vm.catprod()[i].Produits.length;
+                    var produits = [];
+                    produits = vm.catprod()[i].Produits;
+                    for (var j = 0; j < prodsLength; j++) {
+                        //console.log('j ' + j);
+                        //console.log(produits[j].LibMarque);
+                        if (produits[j].LibMarque.toUpperCase() == marque.toUpperCase()) {
+                            var prodMarque = [];
+                            var prodMarqueLength = produits[j].MarqueProds.length;
+                            prodMarque = produits[j].MarqueProds;
+                            for (var k = 0; k < prodMarqueLength; k++) {
+                                //console.log('k ' + k);
+                                //console.log(prodMarque[k].Designation);
+                                if (prodMarque[k].Designation.toLowerCase() == libelle.toLowerCase()) {
+                                    vm.Idprod(prodMarque[k].Id);
+                                    vm.refprod(prodMarque[k].Designation);
+                                    vm.QteStock(prodMarque[k].QteStock);
+                                    //console.log(vm.Idprod());
+                                    //console.log(vm.refprod());
+                                    return;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
+        var vm = {
+            catprod: ko.observableArray([]),
+            refprod: ko.observable("@designation"),
+            Idprod: ko.observable("@Model.ProduitId"),
+            QteStock: ko.observable("@Model.Produit.QteStock"),
+            statutVerre: ko.observable(false),
+            treeState : ko.observable(false)
+    };
+    ko.applyBindings(vm);
+    </script>
+    }
+

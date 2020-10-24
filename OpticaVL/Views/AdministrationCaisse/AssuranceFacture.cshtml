@@ -1,0 +1,239 @@
+﻿@model OpticaVL.ViewModel.InfoReglement
+@{
+    ViewBag.Title = "AssuranceFacture";
+}
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">facture à solder</li>
+}
+
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<div class="row" style="margin-bottom:10px;">
+        <div class="col-sm-3">
+            @Html.Label("Montant à Regler")
+            <input type="text" class="form-control" value="0 FCFA" disabled id="chargeAssurance" />
+        </div>
+        <div class="col-sm-2">
+            @Html.Label("Mode de règlement")
+            <select name="ModeReglement" id="ModeReglement" class="form-control">
+                <option value="Espece">Espece</option>
+                <option value="Cheque" selected>Cheque</option>
+                <option value="Virement">Virement</option>
+            </select>
+        </div>
+        <div class="col-sm-4">
+            @Html.Label("Mode de règlement")
+            @Html.TextBox("RefPayement", Model.RefPayement, new { @class = "form-control" })
+        </div>
+        <div class="col-sm-2">@Html.Label("Date payement") <input type="date" id="datepaye" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" /></div>
+        <div class="col-sm-1"><label></label> <input type="button" onclick="validateAssurancePaye();" data-bind="enable:btnState" class="btn btn-primary" value="valider" /></div>
+</div>
+<div class="row">
+    <div id="factureGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+        function formatNumber(value) { return new Intl.NumberFormat("fr-FR").format(value); }
+        var FactureArr = [];
+        var chargeAssurance = 0;
+        $(document).ready(function () {
+            var source = {
+                datatype: "json",
+                datafields: [
+                    { name: "RefCommande", type: 'string' },
+                    { name: "Montant", type: 'string' },
+                    { name: "MontantClient", type: 'string' },
+                    { name: "ResteAPayer", type: 'int' },
+                    { name: "DateOp", type: 'date' },
+                    { name: "ClientIdentite", type:'string' },
+                    { name: "AssuranceNom", type: 'string' },
+                    { name: "Origine", type: 'string' },
+                    { name: "Id", type: 'int' },
+                    { name : "AssurId", type: 'string'},
+                    { name: "indexKey", type:'int' }
+                ],
+                id: 'indexKey',
+                url: "@Url.RouteUrl("_getListFactureAssurance")"
+            };
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            var cellrender = function (row, column, value, rowData) {
+                return "<span>" + formatNumber(value) + "</span>";
+            };
+            var cellRenderAssurance = function (row, column, value, rowData) {
+                var mtt = formatNumber(value);
+                var link = "";
+                if (rowData.ResteAPayer > 0)
+                {
+                    var url;
+                    if (rowData.AssurId != null) {
+                        url = "@Url.RouteUrl("_addPayement", new { id = "id", source = "assurance", type = "type" })";
+                        url = url.replace("assurance", rowData.AssurId);
+                    } else {
+                        url = "@Url.RouteUrl("_addPayement", new { id = "id", type = "type" })";
+                    }
+                    url = url.replace("id", rowData.Id).replace("type", rowData.Origine);
+                    link = '<a href="'+url+'">Regler</a>';
+                }
+                return '<div><span>' + mtt + '</span>&nbsp;&nbsp;' + link;
+            };
+
+            var getLocalization = function () {
+                var localizationobj = {};
+                localizationobj.pagerGoToPageString = "Page :";
+                localizationobj.pagershowrowsstring = "Ligne:";
+                localizationobj.pagerrangestring = " sur ";
+                localizationobj.pagerNextButtonString = "Suivant";
+                localizationobj.loadtext = "Chargement...";
+                localizationobj.filterSearchString = "Recherche:";
+                localizationobj.pagerPreviousButtonString = "Precedent";
+                return localizationobj;
+            };
+
+            
+            var selectionInfo = function () {
+                // gets selected row indexes. The method returns an Array of indexes.
+                var selection = $("#factureGrid").jqxDataTable('getSelection');
+                var selectedRows = "<br/>Selected Row Indexes:<br/>";
+                if (selection && selection.length > 0) {
+                    FactureArr = [];
+                    chargeAssurance = 0;
+                    var rows = $("#factureGrid").jqxDataTable('getRows');
+                    for (var i = 0; i < selection.length; i++) {
+                        var rowData = selection[i];
+                        chargeAssurance += rowData['ResteAPayer'];
+                        FactureArr.push({ Id: rowData['Id'], IdAssurance: rowData['AssurId'], Montant: rowData['ResteAPayer'], Origine: rowData['Origine'] });
+                        console.log(FactureArr);
+                        //selectedRows += rows.indexOf(rowData);
+                    }
+                }
+                else {
+                    FactureArr = [];
+                    chargeAssurance = 0;
+                }
+                var mtt = formatNumber(chargeAssurance) + ' FCFA';
+                $("#chargeAssurance").val(mtt);
+            }
+
+
+            $("#factureGrid").on('rowSelect', function (event) {
+                // event arguments
+                var args = event.args;
+                // row index
+                var index = args.index;
+                // row data
+                var rowData = args.row;
+                // row key
+                var rowKey = args.key;
+                selectionInfo();
+            });
+
+
+            $("#factureGrid").on('rowUnselect', function (event) {
+                // event arguments
+                var args = event.args;
+                // row index
+                var index = args.index;
+                // row data
+                var rowData = args.row;
+                // row key
+                var rowKey = args.key;
+                selectionInfo();
+            });
+
+
+
+            //init jqxtable energyblue summer shinyblack
+            $("#factureGrid").jqxDataTable({
+                width: '100%',
+                theme: 'darkblue',
+                source: dataAdapter,
+                pageable: true,
+                filterable: true,
+                groups: ['AssuranceNom'],
+                selectionMode: 'multipleRows',
+                //filterMode: 'simple',
+                altRows: true,
+                pageSize: 20,
+                pagerMode: 'advanced',
+                sortable: true,
+                columnsResize: true,
+                pageSizeOptions: ['5', '10', '20', '25', '30', '35', '40'],
+                columnsResize: true,
+                localization: getLocalization(),
+                //agregate
+                showAggregates: true,
+                aggregatesHeight: 25,
+                autoRowHeight: false,
+                //groupping
+                groupsRenderer: function (value, rowData, level) {
+                    return "<strong>Assurance : " + value+"</strong>";
+                },
+                columns: [
+                    { text: 'AssuranceNom', hidden: true, cellsAlign: 'left', align: 'left', dataField: 'AssuranceNom'/*, width: 280 */ },
+                    { text: 'Date', cellsAlign: 'left', align: 'center', dataField: 'DateOp', cellsFormat: 'dd/MM/yyyy', width: '10%' },
+                    { text: 'Ref.Facture', cellsAlign: 'left', align: 'center', dataField: 'RefCommande', width: '15%'  },
+                    { text: 'Identite client', cellsAlign: 'left', align: 'left', dataField: 'ClientIdentite', width: '25%' },
+                    { text: 'Montant', cellsAlign: 'center', align: 'center', dataField: 'Montant', cellsRenderer: cellrender/*, width: '12%'*/ },
+                    //{ text: 'Montant client', cellsAlign: 'center', align: 'center', dataField: 'MontantClient', cellsRenderer: cellrender, width: '12%' },
+                    {
+                        text: 'Reste à payer', cellsAlign: 'center', align: 'center', dataField: 'ResteAPayer', cellsRenderer: cellRenderAssurance/*, width: '12%'*/,
+                        aggregates: [{
+                            'Tot': function (aggregatedValue, currentValue, column, record) {
+                                return aggregatedValue + currentValue;
+                            }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var mtt = formatNumber(aggregates.Tot);
+                            renderString += "<strong>Total : </strong>" + mtt + "</div>";
+                            return renderString;
+                        }
+                    }
+                ]
+            });
+
+            
+
+            $("#Caisse").addClass("active");
+            $("#FactureAssuranceARegler").addClass("active");
+        });
+
+        function validateAssurancePaye() {
+            if (FactureArr.length == 0) {
+                alert('Veuillez selectionnez les factures à régler');
+                return false;
+            } else {
+                if (!confirm('Voulez-vous vraiment valider le règlement du montant de ' + $('#chargeAssurance').val() + ' ?')) return false;
+                vm.btnState(false);
+                $.ajax({
+                    url:"@Url.RouteUrl("_caisseAssuranceReglement")",
+                    data: { apmodel: FactureArr, infoRegl: { ModeReglement: $('#ModeReglement').val(), RefPayement: $('#RefPayement').val(), DatePaye: $('#datepaye').val() } },
+                type:'POST',
+                dataType:'json',
+                success: function (d) {
+                    if (d.Statut = 200) {
+                        $("#factureGrid").jqxDataTable('render');
+                        var initval = '0 FCFA';
+                        $('#chargeAssurance').val(initval);
+                        vm.btnState(true);
+                    } 
+                },
+                error:function(){}
+            });
+        }
+        }
+        vm = { btnState: ko.observable(true) };
+        ko.applyBindings(vm);
+    </script>
+}
+

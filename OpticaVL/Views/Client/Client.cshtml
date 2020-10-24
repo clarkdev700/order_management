@@ -1,0 +1,78 @@
+﻿@model OpticaVL.Models.Client
+@{
+    //Layout = null;
+    ViewBag.Title = "Client";
+    
+}
+
+@section NavigationTitle{
+    Clients
+}
+
+@section filedeNavigation {
+    <li><a href="@Url.RouteUrl("_listeClient")">Clients</a></li>
+    @if (Model.Nom == null)
+    {
+        <li class="active">Ajouter</li>
+    }
+    else 
+    { 
+        <li class="active">Editer</li>
+    }
+    
+}
+
+<!--<div>-->
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-6">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        @Html.Label("Nom")
+                        @Html.TextBox("Nom", @Model.Nom, new { @class = "form-control" })
+                        @Html.ValidationMessage("Nom")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Prenom")
+                        @Html.TextBox("Prenom", @Model.Prenom, new { @class = "form-control" })
+                        @Html.ValidationMessage("Prenom")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Contact")
+                        @Html.TextBox("Contact", @Model.Contact, new { @class = "form-control" })
+                        @Html.ValidationMessage("Contact")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Contact")
+                        @Html.TextBox("Contact2", @Model.Contact2, new { @class = "form-control" })
+                        @Html.ValidationMessage("Contact2")
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Profession")
+                        @Html.TextBox("Profession", @Model.Profession, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Adresse")
+                        @Html.TextBox("Adresse", @Model.Adresse, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Valider</button>
+                        <a href="#" class="btn">Annuler</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+<!--</div>-->
+
+@section scripts {
+    <script>
+        $("#indexClient").addClass("active");
+    </script>
+    }

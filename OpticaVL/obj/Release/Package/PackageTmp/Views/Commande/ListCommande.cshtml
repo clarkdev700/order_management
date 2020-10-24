@@ -1,0 +1,225 @@
+﻿@model OpticaVL.ViewModel.QReglementModel
+@{
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "ListCommande";
+}
+
+@section NavigationTitle{
+        Commande
+    }
+
+@section filedeNavigation{
+        <li><a href="#">commandes</a></li>
+        <li class="active">liste-commande</li>
+    }
+<div class="row">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class="form-inline"}))
+    {
+        <div class="form-group">
+            @Html.Label("Debut")
+            <input type="date" id="Deb" name="Deb" value="@Model.Deb.Value.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="form-group">
+            @Html.Label("Fin")
+            <input type="date" id="End" name="End" value="@Model.End.Value.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="form-group">
+           @Html.Label("")
+           @Html.TextBox("nom", null, new { @class="form-control", placeholder = "saisir nom ou prenom du client..", @style="width:200px;"})
+        </div>
+        <div class="form-group">
+            <button class="btn btn-default" type="button" id="btnValider">OK</button>
+        </div>
+    }
+    
+</div>
+
+<div class="row">
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ref. commande</th>
+                <th>Identite client</th>
+                <th>Adresse & Contact</th>
+                <!--<th>Date disponible</th>-->
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:dataArr">
+            <tr>
+                <td data-bind="text:date"></td>
+                <td data-bind="text:refcmd">
+                    <!--<ul data-bind="foreach: details">
+                        <li>
+                            <span class=""><em><strong>Designation :</strong></em></span>
+                            <span data-bind="text:Designation"></span>
+                            <span>X </span><span data-bind="text:Qte"></span>&nbsp;&nbsp;
+                            <span class=""><em><strong>Marque :</strong></em></span>
+                            <span data-bind="text:Marque"></span>
+                        </li>
+                    </ul>-->
+                </td>
+                <td data-bind="text:identiteClient"></td>
+                <td>
+                    <span>Contact</span>
+                    <span data-bind="text:Adresse.Contact"></span>
+                    <span>Contact2:</span>
+                    <span data-bind="text:Adresse.Contact2"></span>
+                    <p data-bind="text:Adresse.Adr"></p>
+                </td>
+                <!--<td data-bind="text: datedispo"></td>-->
+                <td> 
+                    <!--Modifier-->
+                    <span style="cursor:pointer;" class="primary" title="editer la commande">
+                        <a data-bind="attr:{href:upUrl}"><i class="glyphicon glyphicon-edit"></i></a>
+                    </span> |
+                    <!--Regler-->
+                    <span class="primary" title="ajouter un règlement du client">
+                        <a data-bind="attr:{href:reglUrl}"><i class="glyphicon glyphicon-usd"></i></a>
+                    </span> |
+                    <!--Bonde commande-->
+                    <span title="Imprimer facture client" style="cursor:pointer;">
+                        <!--href: bndeCmde,-->
+                        <a data-bind="click:$parent.generateBondeCommande,attr: { id:id }"><i class="glyphicon glyphicon-print"></i></a>
+                    </span>
+
+                    <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:idWaitBondecmde}" hidden /> 
+                    <span data-bind="visible: !valider">|</span>
+                    <!--Annuler bn de commande-->
+                    <span class="" title="annuler la commande" data-bind="visible: !valider" style="cursor:pointer;">
+                        <a class=" text-danger" data-bind="click:$parent.removeCommande">
+                        <i class="glyphicon glyphicon-remove-circle"></i></a>
+                    </span> 
+                    <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:idwaitRemoveCmde}" hidden /> 
+                    <span data-bind="visible:estAssure">|</span><!--href: facturecmde,-->
+                    <!--Facture assurance-->
+                    <!-- ko foreach : assurances -->
+                    <span title="Imprimer une facture assurance" style="cursor:pointer;">
+                        <a data-bind="click:$root.generateFacture, attr: { id: $index }"><i class="glyphicon glyphicon-print"></i></a>
+                        <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:idwaitFactureAssurance}" hidden />
+                    </span><span data-bind="visible:sepa">|</span>
+                    <!-- /ko -->
+
+                    @*<span data-bind="visible: estAssure" title="Imprimer facture d'assurance" style="cursor:pointer;" class="text-black"><a data-bind="click:$parent.generateFacture, attr: { id: id }"><i class="glyphicon glyphicon-print"></i></a></span> <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:idWaitFacture}" hidden />*@<span data-bind="visible: valider">|</span>
+                    <span class="text-success">
+                        <i class="glyphicon glyphicon-ok-circle" data-bind="visible:valider" title="commande dispo"></i>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        var updteUrl = "@Url.RouteUrl("_updatePostCommande", new { id = "id" })";
+        var reglemtUrl = "@Url.RouteUrl("_addPayement", new { id = "id", type= "commande" })"
+        var bndecmdeUrl = "@Url.RouteUrl("__generateFicheBondeCommande", new { id="id", destinataire="destinataire"})";
+        var removeCmdeUrl = "@Url.RouteUrl("_annulerCommande", new { id = "id" })"
+        $(function(){
+            $("#btnValider").click();
+            $("#indexGestionCommande").addClass("active");
+            $("#listeCommande").addClass("active");
+        });
+
+        $("#btnValider").click(function () {
+            var _qcmd = { Deb: $("#Deb").val(), End: $("#End").val(), nom: $('#nom').val() };
+            $.ajax({
+                url: "@Url.RouteUrl("_QlisteCommandeAllType")",
+                type: "POST",
+                data: _qcmd,
+                //contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    vm.dataArr.removeAll();
+                    if (d.length > 0) {
+                        $.each(d, function(i, val){
+                            var _scdUpUrl = updteUrl.replace("id", val.Id);
+                            var _scdUrlRegl = reglemtUrl.replace("id", val.Id);
+                            var _scdbncmdeUrl = bndecmdeUrl.replace("id", val.Id).replace("destinataire","");
+                            var _scdbncmdeAssurUrl = bndecmdeUrl.replace("id", val.Id).replace("destinataire","assurance");
+                            var _idWaitBndeCmde = 'waitBondeCommande_'+val.Id;
+                            var _idwaitFacture =  'waitFacture_'+val.Id;
+                            var _idwaitRemoveCmde = "waitRemoveCmde_" + val.Id;
+                            var assurances = [];
+                            $.each(val.Assurances, function (x, v) {
+                                var separateur = false;
+                                console.log(x < val.Assurances.length - 1);
+                                if (x < val.Assurances.length - 1) separateur = true;
+                                assurances.push({ idAssur: v, idwaitFactureAssurance: "waitFacture__" + v + '' + val.Id, idFacture: val.Id, sepa: separateur });
+                            });
+                            console.log(assurances);
+                            vm.dataArr.push({ id: val.Id, date: val.Date, details: val.DetailsCommande, identiteClient: val.IdentiteClient, datedispo: val.DateLivraison, Adresse: val.Adresse, valider: val.Valider, upUrl: _scdUpUrl, reglUrl: _scdUrlRegl, refcmd: val.RefCommande, bndeCmde: _scdbncmdeUrl, facturecmde: _scdbncmdeAssurUrl, estAssure: val.EstAssure, idWaitBondecmde: _idWaitBndeCmde, idWaitFacture: _idwaitFacture, idwaitRemoveCmde: _idwaitRemoveCmde, assurances: assurances });
+                        });
+                        console.log(vm.dataArr());
+                    }
+                },
+                error: function(){}
+            });
+        });
+        var viewModel = function () {
+            var x = this;
+            x.dataArr = ko.observableArray([]);
+            x.generateBondeCommande = function ($parent) {
+                var _url = bndecmdeUrl.replace("id", $parent.id).replace("destinataire", "");
+                $('#waitBondeCommande_'+$parent.id).show();
+                $.ajax({
+                    url: _url,
+                    type: 'GET',
+                    dataType: "json",
+                    success: function (d) {
+                        $('#waitBondeCommande_' + $parent.id).hide();
+                        if (d.Result == "OK")
+                        {
+                            window.open("../../DataDir/" + d.Message,'_blank');
+                        }
+                    },
+                    error: function () { }
+                });
+            };
+
+            x.generateFacture = function ($parent) {
+                console.log($parent);
+                var _url = bndecmdeUrl.replace("id", $parent.idFacture).replace("destinataire", $parent.idAssur);
+                $('#waitFacture__' + $parent.idAssur + '' + $parent.idFacture).show();
+                //console.log(_url);
+                //return false;
+                $.ajax({
+                    url: _url,
+                    type: 'GET',
+                    dataType: "json",
+                    success: function (d) {
+                        $('#waitFacture__' + $parent.idAssur + '' + $parent.idFacture).hide();
+                        if (d.Result == "OK")
+                        {
+                            window.open("../../DataDir/" + d.Message, "_blank");
+                        }
+                    },
+                    error: function () { }
+                });
+            };
+
+            x.removeCommande = function($parent) {
+                var _url = removeCmdeUrl.replace("id", $parent.id);
+                if(confirm("Voulez-vous vraiment annuler la commande?")) {
+                    $("#waitRemoveCmde_"+$parent.id).show();
+                    $.ajax({
+                        url:_url,
+                        type:"GET",
+                        dataType:"json",
+                        success: function (d) {
+                            $("#waitRemoveCmde_"+$parent.id).hide();
+                            if(d.Statut == 200){
+                                x.dataArr.remove($parent);
+                            } else {alertify.alert("ERREUR",d.Message);}
+                        },
+                        error: function(){}
+                    });
+                }
+            };
+        };
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>
+    }

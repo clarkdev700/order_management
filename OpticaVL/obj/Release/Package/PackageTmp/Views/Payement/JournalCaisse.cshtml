@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "JournalCaisse";
+}
+
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">journal de caisse</li>
+}
+
+<div class="row">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class="form-inline"}))
+    {
+       <div class="form-group">
+           @Html.Label("Debut")
+           <input type="date" class="form-control" id="Deb" value="@ViewBag.Date" name="Deb" />
+       </div>
+        <div class="form-group">
+           @Html.Label("Fin")
+           <input type="date" class="form-control" id="End" value="@ViewBag.Date" name="End" />
+       </div>
+        <div class="form-group">
+            <div class="col-sm-3">
+                <button class="btn btn-default" type="button" onclick="getJournalCaisse('q');" id="btn_Valider">Valider</button>
+            </div>
+       </div>
+    }
+</div>
+
+<div class="row">
+    <div class="pull-right" data-bind="visible:jarr().length > 0">
+        <button class="btn btn-primary" type="button" onclick="getJournalCaisse('p');" id="btn_Print"><i class="glyphicon glyphicon-print"></i> Imprimer</button>
+        <span><img src="~/DataDir/ajaxfacture.gif" id="waitQuery" hidden /></span>
+    </div>
+</div>
+<div class="row">
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>N° Re&ccedil;u</th>
+                <th>Ref facture</th>
+                <th>Montant vers&eacute;</th>
+                <th>Identit&eacute;</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:jarr">
+            <tr data-bind="css:{'danger':DelState}" class="danger">
+                <td data-bind="text:Date"></td>
+                <td data-bind="text:NumRecu"></td>
+                <td data-bind="text:RefFacture"></td>
+                <td data-bind="text:MontantVerse"></td>
+                <td data-bind="text:Identite"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr><th colspan="4" class="text-center"><strong>Total :</strong>  </th><th class="text-center" data-bind="text:mtt"></th></tr>
+        </tfoot>
+    </table>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $("#Caisse").addClass("active");
+        $("#jCaisse").addClass("active");
+        $("#btn_Valider").click();
+
+        function getJournalCaisse(origine)
+        {
+            var _url = "@Url.RouteUrl("_QjournalCaisse")";
+            if (origine == 'p')
+            {
+                _url = "@Url.RouteUrl("_QjournalCaisse", new { print="print" })";
+                $("#waitQuery").show();
+            } 
+            $.ajax({
+                url: _url,
+                type: "GET",
+                data: {Deb:$("#Deb").val(), End:$('#End').val()},
+                dataType: "json",
+                success: function (d) {
+                    if (origine != "p")
+                    {
+                        vm.jarr.removeAll();
+                        if (d.length > 0) {
+                            var mtt = 0;
+                            $.each(d, function (i, val) {
+                                if (!val.DelState) {
+                                    mtt += val.MontantVerse;
+                                }
+                                var _mttVerse = new Intl.NumberFormat("fr-FR").format(val.MontantVerse);
+                                vm.jarr.push({ Id: val.Id, RefFacture: val.RefFacture, NumRecu: val.NumRecu, Identite: val.Identite, MontantVerse: _mttVerse, Date: val.Date, DelState: val.DelState });
+                            });
+                        }
+                        var montantTotalVerse = mtt > 0 ? new Intl.NumberFormat("fr-FR").format(mtt) : 0;
+                        vm.mtt(montantTotalVerse);
+                        console.log(vm.jarr());
+                    } else {
+                        $("#waitQuery").hide();
+                        window.open("../../DataDir/caisseReport.pdf",'_blank');
+                    }
+                },
+                error: function () { }
+            });
+        }
+        var vm = { jarr: ko.observableArray([]), mtt: ko.observable(0) };
+        ko.applyBindings(vm);
+    </script>
+    }

@@ -1,0 +1,236 @@
+﻿@model List<OpticaVL.ViewModel.QCommandeModel>
+@{
+    ViewBag.Title = "ValidateCommande";
+}
+
+@section NavigationTitle{
+    Commande
+}
+
+@section filedeNavigation{
+    <li><a href="#">commandes</a></li>
+    <li class="active">valider une commande</li>
+}
+
+<div class="row">
+    <div class="form-group">
+        @using (Html.BeginForm("", "", FormMethod.Post, new { @class = "form-inline" }))
+        {
+            <div class="form-group">
+                <div class="input-group">
+                    @Html.TextBox("nom", null, new { @class = "form-control", @placeholder = "saisir nom ou prenom du client", @style = "width:280px;" })
+                    <!--<div class="input-group-addon"><i class="glyphicon glyphicon-search"></i></div>-->
+                </div>
+                    
+            </div>
+         <div class="form-group">
+            <button class="btn btn-default" type="button" id="btnOK" onclick="getListeCommandeEnAttente(); return false;"><i class="glyphicon glyphicon-search"></i></button>
+        </div>
+        }
+    </div>
+</div>
+<div class="row">
+
+    @{
+        <p class="pull-right"><button class="btn btn-primary" id="btnValider" data-bind="visible:statut">Valider</button></p>
+        <table class="table table-responsive table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Details commande</th>
+                    <th>Date Validation</th>
+                    <th>Valider</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach:commandeArr">
+                <tr>
+                    <td data-bind="text:Date"></td>
+                    <td>
+                        <span data-bind="text:Identite.Nom"></span>&nbsp;<span data-bind="text:Identite.Prenom"></span>
+                        <p>
+                            <div data-bind=" visible:Identite.Contact != null" class="text-center">
+                                <span data-bind="text:Identite.Contact"></span>
+                            </div>                            
+                            <div data-bind="visible:Identite.Contact2 != null" class="text-center">
+                                <span data-bind="text:Identite.Contact2"></span>
+                            </div>
+                            <div data-bind="visible:Identite.Email != null" class="text-center">
+                                <span data-bind="text:Identite.Email"></span>
+                            </div>
+                        </p>
+                    </td>
+                    <td>
+                        <div class="row">
+                            <span class="col-xs-3"><strong>MONTURE</strong> </span>
+                            <!-- ko with:DetailsMonture -->
+                                <span class=""><strong data-bind="text:Designation"></strong></span>
+                                <span><strong>-</strong></span>
+                                <span class=""><strong data-bind="text:Numero"></strong></span> <span>X</span>
+                                <span class="" ><strong data-bind="text:Qte"></strong></span>
+                            <!-- /ko -->
+                        </div>
+                        <div class="row">
+                            <!--<h4>Verres</h4>-->
+                        <!-- ko with:DetailsVerres -->
+                            <div>
+                                <div class="col-xs-6">
+                                    <h5><strong>OD</strong></h5>
+                                    <div>
+                                        <!-- ko with:OD--> 
+                                        <div data-bind="visible:Add != null"><span class="col-xs-2"><strong>Add:</strong></span><strong><em>&nbsp;&nbsp;&nbsp;&nbsp;<span data-bind="text:Add"></span></em></strong></div>
+                                        <div><span class="col-xs-2"><strong>Type:</strong></span>&nbsp;&nbsp;&nbsp;
+                                        <em><strong><span data-bind="text:Type"></span>&nbsp;<span data-bind="text:GammeV"></span></strong></em></div>
+                                       
+                                    <div>
+                                        <!-- ko with:VL -->
+                                        <span class="col-xs-2"><strong>VL</strong></span>
+                                        <strong><span class="">Cycl = </span><span data-bind="text:Cyl"></span></strong> |
+                                        <strong><span class="">Sph = </span><span data-bind="text:Sph"></span></strong> |
+                                        <strong><span class="">Axe = </span><span data-bind="text:Axe"></span><span data-bind="visible:Axe != null && Axe.toUpperCase() != 'PLAN'">&ordm;</span></strong>
+                                        <!-- /ko -->
+                                    </div>
+
+                                    <div>
+                                        <!-- ko with:VP -->
+                                        <div data-bind="visible:Cyl != null || Sph != null || Axe != null">
+                                            <span class="col-xs-2"><strong>VP</strong></span>
+                                            <strong><span class="">Cycl = </span><span data-bind="text:Cyl"></span></strong> |
+                                            <strong><span class="">Sph = </span><span data-bind="text:Sph"></span></strong> |
+                                            <strong><span class="">Axe = </span><span data-bind="text:Axe"></span><span data-bind="visible:Axe != null && Axe.toUpperCase() != 'PLAN'">&ordm;</span></strong>
+                                        </div>                                      
+                                        <!-- /ko -->
+                                    </div>
+                                        
+                                        @*<table class="table table-bordered">
+                                            <tr><th></th><th>Cyl</th><th>Sph</th><th>Axe</th></tr>
+                                            <!-- ko with:VL -->
+                                            <tr><th>VL</th><td data-bind="text:Cyl"></td><td data-bind="text:Sph"></td><td><span data-bind="text:Axe"></span>&ordm;</td></tr>
+                                            <!-- /ko -->
+                                            <!-- ko with:VP -->
+                                            <tr><th>VP</th><td data-bind="text:Cyl"></td><td data-bind="text:Sph"></td><td><span data-bind="text:Axe"></span>&ordm;</td></tr>
+                                            <!-- /ko -->
+                                        </table>*@
+                                        <!-- /ko -->
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <h5><strong>OG</strong></h5>
+                                    <div>
+                                        <!-- ko with:OG -->
+                                        <div data-bind="visible:Add != null"><span class="col-xs-2"><strong>Add:</strong></span>&nbsp;&nbsp;&nbsp;&nbsp;<span data-bind="text:Add"></span></div>
+                                        <div>
+                                            <span class="col-xs-2"><strong>Type:</strong> </span>&nbsp;&nbsp;
+                                            <em><strong><span data-bind="text:Type"></span>&nbsp;<span data-bind="text:GammeV"></span></strong></em>
+                                        </div>
+
+                                        <div>
+                                            <!-- ko with:VL -->
+                                            <span class="col-xs-2"><strong>VL</strong></span>
+                                            <strong><span class="">Cycl = </span><span data-bind="text:Cyl"></span></strong> |
+                                            <strong><span class="">Sph = </span><span data-bind="text:Sph"></span></strong> |
+                                            <strong><span class="">Axe = </span><span data-bind="text:Axe"></span><span data-bind="visible:Axe != null && Axe.toUpperCase() != 'PLAN'">&ordm;</span></strong>
+                                            <!-- /ko -->
+                                        </div>
+
+                                        <div>
+                                            <!-- ko with:VP -->
+                                            <div data-bind="visible:Axe != null || Cyl != null || Sph != null">
+                                                <span class="col-xs-2"><strong>VP</strong></span>
+                                                <strong><span class="">Cycl = </span><span data-bind="text:Cyl"></span></strong> |
+                                                <strong><span class="">Sph = </span><span data-bind="text:Sph"></span></strong> |
+                                                <strong><span class="">Axe = </span><span data-bind="text:Axe"></span><span data-bind="visible:Axe != null && Axe.toUpperCase() != 'PLAN'">&ordm;</span></strong>
+                                            </div>   
+                                            <!-- /ko -->
+                                        </div>
+
+                                        @*<table class="table table-bordered">
+                                            <tr><th></th><th>Cyl</th><th>Sph</th><th>Axe</th></tr>
+                                            <!-- ko with:VL -->
+                                            <tr><th>VL</th><td data-bind="text:Cyl"></td><td data-bind="text:Sph"></td><td><span data-bind="text:Axe"></span>&ordm;</td></tr>
+                                            <!-- /ko -->
+
+                                            <!-- ko with:VP -->
+                                            <tr><th>VP</th><td data-bind="text:Cyl"></td><td data-bind="text:Sph"></td><td><span data-bind="text:Axe"></span>&ordm;</td></tr>
+                                            <!-- /ko -->
+                                        </table>*@
+                                        <!-- /ko -->
+                                    </div>
+                                </div>
+                            </div>
+                            <span data-bind="visible:Teinte!= null">
+                                <span class=""><strong>Teinte :</strong> </span>
+                                <span data-bind="text:Teinte"></span>
+                            </span>&nbsp;&nbsp;&nbsp;
+                            <span data-bind="visible:Nature != null">
+                                <span class=""><strong>Nature:</strong></span>
+                                <span class="" data-bind="text:Nature"></span>
+                            </span>
+                        <!-- /ko -->
+                        </div>
+                        <div></div>
+                    </td>
+                    <td><input type="date" data-bind="value: DateLivraison" class="form-control" /></td>
+                    <td class=""><input type="checkbox" data-bind="checked: Valider" style="margin:12px 0 0;" /></td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        function getListeCommandeEnAttente()
+        {
+            var url = "@Url.RouteUrl("_listeCommandeEnAttente", new {nom="nom"})";
+            url = url.replace("nom", $("#nom").val());
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                success: function (d) {
+                    if (d.length > 0) {
+                        vm.commandeArr.removeAll();
+                        $.each(d, function (i, val) {
+                            console.log(val.DetailsCommande);
+                            vm.commandeArr.push({ Id: val.Id, Date: val.Date, Identite: val.Identite, DetailsMonture: val.DetailsMonture, DetailsVerres: val.DetailsVerres, Valider: val.Valider, DateLivraison: val.DateLivraison });
+                            //vm.commandeArr.push({ Id: val.Id, Date: val.Date, DateLivraison: val.DateLivraison, DateRetardLivraison: val.DateRetardLivraison, Details: val.DetailsCommande, Valider: val.Valider });
+                            vm.statut(true);
+                        }); 
+                    }
+                },
+                error: function () { }
+            });
+        }
+
+        $(function () {
+            $("#btnOK").click();
+            $("#indexGestionCommande").addClass("active");
+            $("#validationCommande").addClass("active");
+        });
+
+        $("#btnValider").click(function () {
+            $.ajax({
+                url: "@Url.RouteUrl("_valdidationCommandePost")",
+                type: "POST",
+                data: /*JSON.stringify(*/{qcmodel: vm.commandeArr()}/*)*/,
+                //contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (d) {
+                    alertify.set('notifier', 'position', 'top-right');
+                    if (d.Statut == 200)
+                    {
+                        alertify.success('Validation effectuée avec succès.', 7);
+                        $("#btnOK").click();
+                    } else {
+                        alertify.error('Une erreur s\'est produite. Veuillez ressayer.',7);
+                    }
+                },
+                error: function () { }
+            });
+        });
+
+       var vm = { commandeArr: ko.observableArray(), statut:ko.observable(false) };
+        ko.applyBindings(vm);
+    </script>
+    }

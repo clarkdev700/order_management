@@ -1,0 +1,99 @@
+﻿@model List<OpticaVL.ViewModel.JournalCaisse>
+@using System.Globalization
+@using Developpez.Dotnet
+@{
+    ViewBag.Title = "Report";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+    float Mtt = 0;
+    var nbPage = (decimal)Model.Count / 25;
+    nbPage = Math.Ceiling(nbPage);
+}
+
+
+@{
+        int i = 0, x = 0;
+        while (i < nbPage)
+        {
+            <div class="row" style="margin:25px 15px 40px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+                @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+            </div>
+            <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+                <div class="row text-center" style="margin-bottom:35px;">
+                    <h2 style=""><u><strong> Journal de caisse du @ViewBag.periode.Deb au @ViewBag.periode.End </strong> </u></h2>
+                </div>
+
+                <div class="row">
+                    <table class="table table-bordered table-striped table-condensed">
+                        <thead>
+                            <tr class="">
+                                <!-- #8f909f; style="background-color: #a2b1d0; font-size: 20px; " -->
+                                <th class="text-center">Date</th>
+                                <th class="text-center">N&ordm; re&ccedil;u</th>
+                                <th class="text-center">Ref Facture</th>
+                                <th class="text-center">Montant verse&eacute;</th>
+                                <th class="text-center">Identite</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ToList().Count > 0)
+                            {
+                                var nb = Model.Count;
+                                for (var j = x; j < nb; j++)
+                                {
+                                    var trClass = "";
+                                    if (Model[j].DelState) { trClass = "danger"; }
+                                
+                                <tr class="@trClass">
+                                @{
+                                    var delSign = "";
+                                    if (!Model[j].DelState)
+                                    {
+                                        Mtt += Model[j].MontantVerse;
+                                    }
+                                    else
+                                    {
+                                        delSign = "-";
+                                    }
+                                 }
+                                <td>@Model[j].Date</td>
+                                <td class="text-center">@Model[j].NumRecu</td>
+                                <td>@Model[j].RefFacture</td>
+                                <td class="text-center">@(delSign + Model[j].MontantVerse.ToString("N0", CultureInfo.CurrentCulture))</td>
+                                <td>@Model[j].Identite</td>
+                            </tr>
+                                    if (j > 0 && j % 25 == 0)
+                                    {
+                                        x = j + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                        </tbody>
+                        @*<tfoot>
+                            <!-- #b8b8b8 #aab9bf style="font-size: 20px; background-color: #b8b8b8;" -->
+                            <tr><th colspan="3" class="text-center" height="40px;">TOTAL</th><th colspan="2" valign="middle" align="center" class="text-center">@Mtt.ToString("N0", CultureInfo.CurrentCulture)</th></tr>
+                        </tfoot>*@
+                    </table>
+                    @{
+                        i++;
+                        if ((nbPage - i) > 0)
+                        {
+                        <div style="page-break-after: always; border:none;"></div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        
+        <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+            <div class="row">
+                @{
+                    var mttEnlettre = NumberConverter.Spell((ulong)Mtt);
+                    var mttEnLettreFormater = mttEnlettre[0].ToString().ToUpper() + mttEnlettre.Substring(1);
+                }
+                <h3>Montant en caisse evalué &agrave; la somme de <strong>@mttEnLettreFormater (@Mtt.ToString("N0", CultureInfo.CurrentCulture))FCFA</strong></h3>
+            </div>
+        </div>
+
+}
+

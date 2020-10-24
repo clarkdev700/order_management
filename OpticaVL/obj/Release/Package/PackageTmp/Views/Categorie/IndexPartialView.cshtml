@@ -1,0 +1,27 @@
+﻿@model List<OpticaVL.Models.Categorie>
+
+<p>
+    <a href="@Url.RouteUrl("_addCategorie")" class="btn btn-sm btn-primary">Ajouter</a>
+</p>
+<table class="table  table-responsive table-striped">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Libelle</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.Code.ToUpper()</td>
+                <td>@c.Libelle.ToUpper()</td>
+                <td>
+                    <span><a href="@Url.RouteUrl("_updateCategorie", new { id=c.Id})"><i class="glyphicon glyphicon-edit"></i></a></span> |
+                    <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                </td>
+            </tr>
+        }   
+    </tbody>
+</table>

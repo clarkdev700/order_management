@@ -1,0 +1,246 @@
+﻿@using System.Globalization
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Template/css")
+    @Styles.Render("~/Content/css_")
+    @Styles.Render("~/Template/css_")
+    @*@Scripts.Render("~/bundles/modernizr")*@
+
+    <style type="text/css">
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    </style>
+
+    @RenderSection("headerStyle", required: false)
+
+</head>
+<body class="skin-blue">
+
+    @*<div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    @Html.ActionLink("Nom de l'application", "Index", "Home", null, new { @class = "navbar-brand" })
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li>@Html.ActionLink("Accueil", "Index", "Home")</li>
+                        <li>@Html.ActionLink("À propos de", "About", "Home")</li>
+                        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+            </div>
+        </div>*@
+
+    <div class="wrapper">
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="index2.html" class="logo">OPTIQUE OTTICA<!--<b>Admin</b>LTE--></a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="~/Template/dist/img/user2-160x160.jpg" class="user-image" alt="User Image" />
+                                <span class="hidden-xs">Bienvenue @CultureInfo.CurrentCulture.TextInfo.ToTitleCase(User.Identity.Name)</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><div></div></li>
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <div class="pull-left">
+                                        @Html.ActionLink("Profile", "Manage", "Account", new { }, new { title = "Administrer votre compte", @class = "btn btn-default btn-flat" })
+                                    </div>
+                                    <div class="pull-right">
+                                        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="submit" value="Deconnexion" class="btn btn-default btn-flat" />
+                                        }
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                 <li class="" id="dashboard">
+                        <a href="@Url.RouteUrl("_dashboardhome")">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <!--<li id="indexClient">
+                        <a href="#">@*Url.RouteUrl("_listeClient")*@
+                            <i class="fa fa-user"></i>
+                            <span>Clients</span>
+                        </a>
+                    </li>-->
+                    <li id="indexProduit" class="treeview">
+                        <a href="#">
+                            <i class="fa fa-th"></i> <span>Gestion de Produits</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="addProduit"><a href="@Url.RouteUrl("_addProduit")"><i class="fa fa-circle-o"></i> Ajouter un produit</a></li>
+                            <li id="listeProduit"><a href="@Url.RouteUrl("_listeProduits")"><i class="fa fa-circle-o"></i> Liste des Produits</a></li>
+                        </ul>
+                    </li>
+                    <li id="indexVerre" class="treeview">
+                        <a href="#">
+                            <i class="glyphicon glyphicon-sunglasses"></i> <span>Gestion des Verres</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="addVerre"><a href="@Url.RouteUrl("_AddVerre")"><i class="fa fa-circle-o"></i> Ajouter un verre</a></li>
+                            <li id="listeVerre"><a href="@Url.RouteUrl("_listeVerre")"><i class="fa fa-circle-o"></i> Liste des verres</a></li>
+                        </ul>
+                    </li>
+                    <li id="Stock" class="treeview">
+                        <a href="#">
+                            <i class="fa fa-th"></i> <span>Gestion du stock</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="mouvementStock"><a href="@Url.RouteUrl("_addStock")"><i class="fa fa-circle-o"></i> Mouvement de stocks  </a></li>
+                            <li id="inventaireStock"><a href="@Url.RouteUrl("_inventaireStock")"><i class="fa fa-circle-o"></i> Inventaire de stocks  </a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview" id="indexGestionCommande">
+                        <a href="#">
+                            <i class="fa fa-table"></i> <span>Gestion de Commande</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="addproforma"><a href="@Url.RouteUrl("_addCommandeProforma")"><i class="fa fa-circle-o"></i> Etablir une facture pro forma</a></li>
+                            <li id="addCommande"><a href="@Url.RouteUrl("_addCommande")"><i class="fa fa-circle-o"></i> Ajouter une commande</a></li>
+                            <li id="listeCommande"><a href="@Url.RouteUrl("_listeCommandeAllType")"><i class="fa fa-circle-o"></i> Liste des commandes</a></li>
+                            <li id="validationCommande"><a href="@Url.RouteUrl("_validationCommande")"><i class="fa fa-circle-o"></i> Validation commande</a></li>
+                            <li id="CommandeDispo"><a href="@Url.RouteUrl("_commandeDispo")"><i class="fa fa-circle-o"></i> Commandes disponibles</a></li>
+                            <li id="receptionCommande"><a href="@Url.RouteUrl("_IndexReceptionCommande")"><i class="fa fa-circle-o"></i> Commandes receptionn&eacute;es</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview" id="gestionVente">
+                        <a href="#">
+                            <i class="fa fa-shopping-cart"></i> <span>Gestion de ventes</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="gestionVenteNew"><a href="@Url.RouteUrl("_addVente")"><i class="fa fa-circle-o"></i> Nouveau</a></li>
+                            <li id="opVente"><a href="@Url.RouteUrl("_operationVentes")"><i class="fa fa-circle-o"></i> Operation de vente</a></li>
+                            <li id="jVente"><a href="@Url.RouteUrl("_journalVente")"><i class="fa fa-circle-o"></i> Journal de Vente</a></li>
+                        </ul>
+                    </li>
+                    <li class="treeview" id="Caisse">
+                        <a href="#">
+                            <i class="glyphicon glyphicon-usd"></i> <span>Caisse</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="FactureclientARegler"><a href="@Url.RouteUrl("_factureASolder")"><i class="fa fa-circle-o"></i> Facture client à regler</a></li>
+                            <li id="FactureAssuranceARegler"><a href="@Url.RouteUrl("_factureASolderAssurance")"><i class="fa fa-circle-o"></i> Facture assurance à regler</a></li>
+                            <li id="ValidateReglement"><a href="@Url.RouteUrl("_caisseValidation")"><i class="fa fa-circle-o"></i>Validation de Règlement</a></li>
+                            <li id="jCaisse">
+                                <a href="@Url.RouteUrl("_journalCaisse")"><i class="fa fa-circle-o"></i> Journal de caisse</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="treeview" id="Parametre">
+                        <a href="#">
+                            <i class="glyphicon glyphicon-cog"></i> <span>Parametres</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="assurance"><a href="@Url.RouteUrl("_ListeAssurance")"><i class="fa fa-home"></i> Assurance</a></li>
+                            <li id="gammeVerre"><a href="@Url.RouteUrl("_gammeVerreAdd")"><i class="fa fa-circle-o"></i> Gamme de verre</a></li>
+                            <li id="fournisseur"><a href="#"><i class="fa fa-truck"></i> Fournisseur</a></li>@*Url.RouteUrl("_indexFournisseur")*@
+                            <li id="categorie"><a href="@Url.RouteUrl("_addCategorie")"><i class="fa fa-circle-o"></i> Categorie</a></li>
+                            <li id="marque"><a href="@Url.RouteUrl("_listeMarque")"><i class="fa fa-circle-o"></i> Marque</a></li>
+                            @*<li id="verre"><a href="@Url.RouteUrl("_listeVerre")"><i class="fa fa-circle-o"></i> Verres</a></li>*@
+                        </ul>
+                    </li>
+                    <li class="treeview" id="administration">
+                        <a href="#">
+                            <i class="fa fa-cogs"></i> <span>Administration</span>
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </a>
+                        <ul class="treeview-menu">
+                            <li id="newUser"><a href="#"><i class="fa fa-user"></i> ajouter un utilisateur</a></li>
+                            @*Url.Action("Register", "Account")*@
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1>
+                    @RenderSection("NavigationTitle", required:false)
+                    <!--<small>Control panel</small>-->
+                </h1>
+                <ol class="breadcrumb">
+                    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                    <!--<li class="active">Dashboard</li>-->
+                    @RenderSection("filedeNavigation", required: false)
+                </ol>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        @RenderSection("header", required: false)
+                    </div>
+                    <div class="box-body">
+                        @RenderBody()
+                    </div>
+                </div>
+                <hr />
+                <footer>
+                    <p><strong><em>&copy; OPTIQUE OTTICA @DateTime.Now.Year, Designed by</em></strong> <em><a href="http://ewitechnology.fr">EWIT SARL</a></em></p>
+                </footer>
+            </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+    </div><!-- ./wrapper -->
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @*Scripts.Render("~/bundles/jqueryval")*@
+    @Scripts.Render("~/Scripts/js")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/Template/js")
+    @RenderSection("scripts", required: false)
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button);
+    </script>
+</body>
+</html>

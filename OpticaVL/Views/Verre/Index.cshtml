@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+
+@section NavigationTitle{
+   Verres
+}
+
+@section filedeNavigation{
+    <li><a href="#">verres</a></li>
+    <li class="active">liste des verres</li>
+}
+
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<div class="row">
+
+</div>
+<div class="row">
+    <p>
+        <a class="btn btn-primary" href="@Url.RouteUrl("_AddVerre")">Ajouter</a>
+    </p>
+    <div id="verreGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+    function removeItem(index) {
+        var url = "@Url.RouteUrl("_deleteMVerre", new { id = "id" })";
+        url = url.replace("id", index);
+        if (!confirm("Voulez vous vraiment proceder à la suppression?")) return false;
+        $("#wait_" + index).show();
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                $("#wait_" + index).hide();
+                if (d.Statut == 200) {
+                    $("#verreGrid").jqxDataTable('render');
+                }
+            },
+            error: function () { }
+        });
+    }
+
+    $(document).ready(function () {
+        var source = {
+            datatype: "json",
+            datafields: [
+                { name: "Sph", type: 'string' },
+                { name: "Cycl", type: 'string' },
+                { name: "Side", type: 'string' },
+                { name: "Addition", type: 'string' },
+                { name: "TypeVerre", type: 'string' },
+                { name: "GammeVerre", type: 'string' },
+                { name: "Qte", type: 'int' },
+                { name: "IdGVP", type: 'int' }
+            ],
+            id: 'IdGVP',
+            url: "@Url.RouteUrl("_getVerreList")"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source);
+        var cellrender = function (row, column, value, rowData) {
+            var update, del, stock, ajaxwait, waitId = "wait_" + rowData.IdGVP;
+            update = '<a href="@Url.RouteUrl("_UpdateVerre", new { id = "id" })" title="modifier les infos du verre"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;';
+            stock = '<a href="@Url.RouteUrl("_UpdateStockVerre", new { id = "id" })" title="modifier la quantité en stock"><i class="glyphicon glyphicon-th"></i></a>&nbsp;&nbsp;';
+            del = '<a href="#" title="supprimer une puissance" class="text-danger" onclick="removeItem(' + rowData.IdGVP + ')"><i class="glyphicon glyphicon-remove-circle"></i></a>';
+            ajaxwait = '<img src="/../../DataDir/ajaxfacture.gif" id="' + waitId + '" hidden />';
+            var ch1 = update + " | " + stock +' | ' + del;
+            if (rowData.IdGVP > 0)
+                return ch1.replace(/id/gi, rowData.IdGVP) + " " + ajaxwait;
+            else return "";
+        };
+        var getLocalization = function () {
+            var localizationobj = {};
+            localizationobj.pagerGoToPageString = "Page :";
+            localizationobj.pagershowrowsstring = "Ligne:";
+            localizationobj.pagerrangestring = " sur ";
+            localizationobj.pagerNextButtonString = "Suivant";
+            localizationobj.loadtext = "Chargement...";
+            localizationobj.filterSearchString = "Recherche:";
+            localizationobj.pagerPreviousButtonString = "Precedent";
+            return localizationobj;
+        };
+        //init jqxtable energyblue summer shinyblack
+        $("#verreGrid").jqxDataTable({
+            width: '100%',
+            theme: 'darkblue',
+            source: dataAdapter,
+            pageable: true,
+            filterable: true,
+            groups: ['TypeVerre'],
+            //filterMode: 'simple',
+            altRows: true,
+            pageSize: 20,
+            pagerMode: 'advanced',
+            sortable: true,
+            columnsResize: true,
+            pageSizeOptions: ['5', '10', '20', '25', '30', '35', '40'],
+            columnsResize: true,
+            localization: getLocalization(),
+            //agregate
+            showAggregates: true,
+            aggregatesHeight: 25,
+            autoRowHeight: false,
+            //groupping
+            groupsRenderer: function (value, rowData, level) {
+                return "<strong>Type verre : " + value.toUpperCase() + "</strong>";
+            },
+            columns: [ 
+                { text: 'CYL', cellsAlign: 'center', align: 'center', dataField: 'Cycl'/*, width: 280 */ },
+                { text: "SPH", datafield: "Sph", cellsAlign: 'center', align: 'center', width:"10%" },
+                { text: "ADD", datafield: "Addition", align: 'center', cellsAlign: 'center', width: "10%" },
+                { text: 'GammeVerre', hidden: false, cellsAlign: 'center', align: 'center', dataField: 'GammeVerre'/*, width: 280 */ },
+                { text: "TYPE", datafield: "TypeVerre", hidden: true, align: 'center', cellsAlign: 'center', width: "10%" },
+                { text: "Side", datafield: "Side", align: 'center', cellsAlign: 'center', width: "7%" },
+                {
+                    text: "QTE", datafield: "Qte", /*cellsFormat: 'n',*/ align: 'center', cellsAlign: 'center', width: "15%",
+                    aggregates: [{
+                        'Total': function (aggregatedValue, currentValue, column, record) {
+                            return aggregatedValue + currentValue;
+                        }
+                    }],
+                    aggregatesRenderer: function (aggregates, column, element) {
+                        var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                        renderString += "<strong>Total : </strong>" + aggregates.Total + "</div>";
+                        return renderString;
+                    }
+                },
+                { text: "", datafield: "Id", width: "20%", cellsAlign: 'center', sortable: false, cellsRenderer: cellrender, filterable: false }
+            ]
+        });
+       
+        $("#indexVerre").addClass("active");
+        $("#listeVerre").addClass("active");
+    });
+
+    </script>
+}
+
+
+

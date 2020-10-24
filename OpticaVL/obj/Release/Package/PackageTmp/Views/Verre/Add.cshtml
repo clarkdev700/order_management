@@ -1,0 +1,89 @@
+﻿@model OpticaVL.ViewModel.FicheVerreModel
+@{
+    ViewBag.Title = "Add";
+}
+
+@section NavigationTitle{
+    Verres
+}
+
+@section filedeNavigation{
+    <li><a href="#">verres</a></li>
+    <li class="active">ajouter un verre</li>
+}
+
+<div class="row">
+    
+    @using (Html.BeginForm(/*"Add", "Verre", FormMethod.Post, new { @class=""}*/))
+    {
+        <div class="col-md-2"></div>
+        <div class="col-md-7">
+            <div class="form-group">
+                @Html.Label("Type verre")
+                @Html.DropDownList("TypeVerre", (SelectList)ViewBag.TypeVerre,"-- Choisir le type verre -- " ,new { @class = "form-control", @data_bind = "enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Gamme verre")
+                @Html.DropDownList("GammeVerreId", (SelectList)ViewBag.GammeVerre,"-- Choisir la gamme de verre --" ,new { @class = "form-control", @data_bind = "enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Side")
+                @Html.DropDownList("Side", (SelectList)ViewBag.Side,"-- Choisir un OD/OG --" ,new { @class = "form-control", @data_bind = "enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Sph")
+                @Html.TextBox("Sph", Model.Sph, new { @class = "form-control", @data_bind = "enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Cycl")
+                @Html.TextBox("Cycl", Model.Cycl, new { @class = "form-control", @data_bind = "enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Addition")
+                @Html.TextBox("Addition", Model.Addition, new { @class = "form-control", @data_bind="enable:State" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Quantité")
+                @Html.TextBox("Qte", Model.Qte, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default" type="submit">Valider</button>
+                <a href="@Url.RouteUrl("_listeVerre")">Annuler</a>
+            </div>
+        </div>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+        $("#indexVerre").addClass("active");
+        $("#addVerre").addClass("active");
+
+        var _state = "@ViewBag.State";
+        function formatChaine(ch) {
+            return ch.replace('.', ',');
+        }
+
+        $(function () {
+            $("#TypeVerre").val("@ViewBag.Dverre.TypeVerre");
+            $("#GammeVerreId").val("@ViewBag.Dverre.GammeVerre");
+            $("#Side").val("@ViewBag.Dverre.SideVerre");
+        });
+
+        $("form").submit(function () {
+            var sph = cycl = axe = add = "";
+            sph = formatChaine($("#Sph").val());
+            cycl = formatChaine($("#Cycl").val());
+            //axe = formatChaine($("#Axe").val());
+            add = formatChaine($("#Addition").val());
+            $('#Sph').val(sph);
+            $('#Cycl').val(cycl);
+            $('#Addition').val(add);
+        });
+
+            _state = _state === 'False' ? false : true;
+            var vm = { State: ko.observable(_state) };
+            ko.applyBindings(vm);
+    </script>
+}
+

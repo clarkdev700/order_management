@@ -1,0 +1,141 @@
+﻿@model OpticaVL.ViewModel.ModelVenteRecu
+@using System.Globalization
+@using Developpez.Dotnet
+
+@{
+    ViewBag.Title = "RecuCommande";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+}
+
+@{ 
+    int i = 0;
+    while(i < 2) 
+    {
+        i++;
+        <div class="row" style="margin-bottom:55px;">
+            @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+        </div>
+
+        <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+            <div class="row text-center">
+                <h4 class="text-uppercase"><u><strong>Re&ccedil;u N&ordm; @Model.NumRecu</strong></u></h4>
+            </div>
+
+            <div class="row">
+                <div class="col-md-11">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="row pmarge">
+                                <span class="col-xs-4">Client :</span>
+                                <span>@(Model.Nom + " " + Model.Prenom)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @{
+                            var C1 = "col-md-12";
+                            var C2 = "";
+                            if (Model.Reglements.Count > 0)
+                            {
+                                C1 = "col-md-9";
+                                C2 = "col-md-3";
+                            }
+                        }
+                        <div class="@C1">
+                            <table border="1" cellpadding="5" cellspacing="5" style="width:100%; rules=" groups" frame="box">
+                                <colgroup width="5%" span="1"></colgroup>
+                                <colgroup width="50%" span="1"></colgroup>
+                                <colgroup span="1" width="15%"></colgroup>
+                                <colgroup span="1" width="13%"></colgroup>
+                                <colgroup span="1" width="17%"></colgroup>
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Qte</th>
+                                        <th class="text-center">Designation</th>
+                                        <th class="text-center">Pu</th>
+                                        <th class="text-center">Remise</th>
+                                        <th class="text-center">Montant</th>
+                                    </tr>
+                                </thead>
+                                @{
+                                    foreach (var lv in Model.LigneVente)
+                                    {
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">@lv.Qte</td>
+                                                <td class="pad">@lv.Designation.ToUpper()</td>
+                                                <td class="text-center">@lv.Prix.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                                <td class="text-center">@lv.Remise.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                                <td class="text-center">@lv.ssTotal.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                            </tr>
+                                        </tbody>
+                                    }
+                                }
+                                <tfoot>
+                                    @*if (Model.ChargeAssurance == 0)
+                                    {*@
+                                        <tr>
+                                            <th colspan="3" class="">Charge Client</th>
+                                            <th class="text-center">0</th>
+                                            <th class="text-center" colspan="1">@Model.ChargeClient.ToString("N0", CultureInfo.CurrentCulture)</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="3" class="">Charge Assurance</th>
+                                            <th class="text-center">0</th>
+                                            <th class="text-center" colspan="1">@Model.ChargeAssurance.ToString("N0", CultureInfo.CurrentCulture)</th>
+                                        </tr>
+                                    <tr>
+                                        <th colspan="3" class="">Reduction</th>
+                                        <th class="text-center">0</th>
+                                        <th class="text-center" colspan="1">@Model.ReductionClient.ToString("N0", CultureInfo.CurrentCulture)</th>
+                                    </tr>
+                                    @*}*@
+                                    @{ var montant = (Model.ChargeAssurance + Model.ChargeClient) - Model.ReductionClient; }
+                                    <tr style="background-color:#989898;"><th colspan="3" class="text-center" style="height:30px;">Total</th><th class="text-center">@Model.Remise.ToString("N0", CultureInfo.CurrentCulture)</th><th class="text-center">@*Model.MontantTotal*@ @montant.ToString("N0", CultureInfo.CurrentCulture)</th></tr>
+                                </tfoot>
+                            </table>
+
+                        </div>
+                        @if (Model.Reglements.Count > 0)
+                        {
+                        <div class="@C2">
+                            <h4><u><strong>Historique R&egrave;glement (FCFA)</strong></u></h4>
+                            <ul style="list-style:none;">
+                                @foreach (var p in Model.Reglements)
+                                {
+                                    <li style="margin-left:-50px;">
+                                        <span class="col-xs-5" style="margin-right:5px;">@p.Date</span>
+                                        <span class="col-xs-5">@p.Montant.ToString("N0", CultureInfo.CurrentCulture)</span>
+                                        <span class="">@p.Mregl</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                @{
+                    var mttEnlettre = NumberConverter.Spell((ulong)@Model.MontantVerse);
+                    var mttEnLettreFormater = mttEnlettre[0].ToString().ToUpper() + mttEnlettre.Substring(1);
+                }
+                <h3><span>Montant vers&eacute; : </span> <strong>@Model.MontantVerse.ToString("N0", CultureInfo.CurrentCulture) (@mttEnLettreFormater) FCFA</strong></h3>
+                @{string chaine = Model.ResteApayerClient > 0 ? Model.ResteApayerClient.ToString("N0", CultureInfo.CurrentCulture) +" FCFA" : "Soldé";}
+                <h3><span>Reste &agrave; payer : </span><strong>@chaine</strong></h3>
+            </div>
+
+            <div class="row" style="margin-top:80px; margin-bottom:45px;">
+                <h3 class="pull-right">Signature</h3>
+            </div>
+
+            @if(i == 1) {<hr />  }
+        </div>
+
+    }
+ }
+
+
+

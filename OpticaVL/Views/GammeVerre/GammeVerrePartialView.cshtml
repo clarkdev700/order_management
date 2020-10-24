@@ -1,0 +1,32 @@
+﻿@model List<OpticaVL.Models.GammeVerre>
+
+<p>
+    <a href="@Url.RouteUrl("_gammeVerreAdd")" class="btn btn-primary btn-sm">Ajouter</a>
+</p>
+<table class="table table-responsive table-striped">
+    <thead>
+        <tr>
+            <th>Libelle</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gv in Model)
+        {
+            <tr>
+                <td>
+                    @if (gv.Libelle != null)
+                    {
+                        @gv.Libelle.ToLower();
+                    } else {@gv.Libelle;}
+
+                </td>
+                <td>
+                    <span><a href="@Url.RouteUrl("_updateGammeVerre", new { id= gv.Id })"><i class="glyphicon glyphicon-edit"></i></a></span> |
+                    <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                </td>
+            </tr>
+        }
+        
+    </tbody>
+</table>

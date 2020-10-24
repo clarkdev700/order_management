@@ -1,0 +1,122 @@
+﻿@using System.Globalization
+@{
+    ViewBag.Title = "JournalVente";
+}
+
+@section NavigationTitle{
+    Vente
+}
+
+@section filedeNavigation{
+    <li><a href="#">vente</a></li>
+    <li class="active">journal des operations de vente</li>
+}
+<div class="row">
+    <form class="form-inline">
+        <div class="form-group">
+            @Html.Label("Debut")
+            <input type="date" value="@ViewBag.QDate.ToString("yyyy-MM-dd")" id="Deb" name="Deb" class="form-control" />
+        </div>
+        <div class="form-group">
+            @Html.Label("End")
+            <input type="date" value="@ViewBag.QDate.ToString("yyyy-MM-dd")" id="End" name="End" class="form-control" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-default" type="button" id="BtnValider" onclick="Valider('q')">Valider</button>
+        </div>
+    </form>
+</div>
+
+<div class="row">
+    <div class="pull-right" data-bind="visible:QArr().length > 0">
+        <button class="btn btn-primary" type="button" onclick="Valider('p');" id="btn_Print"><i class="glyphicon glyphicon-print"></i> Imprimer</button>
+        <span><img src="~/DataDir/ajaxfacture.gif" id="waitQuery" hidden /></span>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <!--<th>Reference</th>-->
+                <th>Designation</th>
+                <!--<th>Numero</th>-->
+                <th>Marque</th>
+                <th>Qte</th>
+                <th>Montant</th>
+                <th>Total Remise</th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:QArr">
+            <tr>
+                <td data-bind="text:Date"></td>
+                <!--<td data-bind="text:RefProd"></td>-->
+                <td data-bind="text:Designation"></td>
+                <!--<td data-bind="text:Numero"></td>-->
+                <td data-bind="text:Marque"></td>
+                <td data-bind="text:QteVendu"></td>
+                <td data-bind="text:Montant"></td>
+                <td data-bind="text:TotalRem"></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr><th colspan="4">Montant</th><th data-bind="text:mttTotal" colspan="2"></th></tr>
+            <tr><th colspan="5">Remise Total</th><th data-bind="text:remTotal" colspan="1"></th></tr>
+            <tr><th colspan="3">Montant encaisse</th><th data-bind="text:mttEncaisse" colspan="3"></th></tr>
+        </tfoot>
+    </table>
+</div>
+@section scripts{
+    <script type="text/javascript">
+
+    $("#gestionVente").addClass("active");
+    $("#jVente").addClass("active");
+
+    $("#BtnValider").click();
+    function formatNumber(number) {
+        var chaine = new Intl.NumberFormat("fr-FR").format(number)
+        return chaine;
+    }
+
+    function Valider(origine) {
+        var _url = "@Url.RouteUrl("_QJournaldeVente")";
+        if (origine == 'p') {
+            _url = "@Url.RouteUrl("_QJournaldeVente", new { print = "print" })";
+                $("#waitQuery").show();
+            }
+
+            $.ajax({
+                url:_url,
+                type:"GET",
+                data:{Deb: $("#Deb").val(), End:$("#End").val()},
+                dataType:"json",
+                success: function (d) {
+                    if (origine == "q")
+                    {
+                        if (d.length > 0) {
+                            var mttEncaisse = 0, rem = 0, mtt = 0;
+                            vm.QArr.removeAll();
+                            $.each(d, function (index, val) {
+                                vm.QArr.push({ Date: val.Date, RefProd: val.RefProd, Designation: val.Designation, QteVendu: val.QteVendu, Montant: formatNumber(val.Montant), TotalRem: formatNumber(val.TotalRem), Marque: val.Marque, Numero: val.Numero });
+                                mtt += val.Montant;
+                                rem += val.TotalRem;
+                            });
+                            mttEncaisse = mtt - rem;
+                            vm.mttEncaisse(formatNumber(mttEncaisse));
+                            vm.mttTotal(formatNumber(mtt));
+                            vm.remTotal(formatNumber(rem));
+                            console.log(vm.QArr());
+                        }
+                    } else {
+                        $("#waitQuery").hide();
+                        window.open("../../DataDir/venteReport.pdf", "_blank");
+                    }
+                },
+                error:function(){}
+            });
+        };
+        var vm = { QArr: ko.observableArray([]), mttEncaisse:ko.observable(0), mttTotal:ko.observable(0), remTotal:ko.observable(0) };
+        ko.applyBindings(vm);
+    </script>
+    }

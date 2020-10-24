@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">facture à solder</li>
+}
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<div class="row">
+
+</div>
+<div class="row">
+    <div id="factureGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+        function formatNumber(value) { return new Intl.NumberFormat("fr-FR").format(value); }
+        $(document).ready(function () {
+            var source = {
+                datatype: "json",
+                datafields: [
+                    { name: "RefCommande", type: 'string' },
+                    { name: "Montant", type: 'string' },
+                    { name: "MontantClient", type: 'string' },
+                    { name: "ResteAPayer", type: 'int' },
+                    //{ name: "ResteAPayerClient", type: 'int' },
+                    { name: "DateOp", type: 'date' },
+                    { name: "ClientIdentite", type:'string' },
+                    { name: "AssuranceNom", type: 'string' },
+                    { name: "Origine", type: 'string' },
+                    { name: "Id", type: 'int' },
+                    { name : "AssurId", type: 'string'},
+                    { name: "indexKey", type:'int' }
+                ],
+                id: 'indexKey',
+                url: "@Url.RouteUrl("_getListeClientFacture")"
+            };
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            var cellrender = function (row, column, value, rowData) {
+                return "<span>" + formatNumber(value) + "</span>";
+            };
+            var cellRenderAssurance = function (row, column, value, rowData) {
+                var mtt = formatNumber(value);
+                var link = "";
+                if (rowData.ResteAPayer > 0)
+                {
+                    var url;
+                    if (rowData.AssurId != null) {
+                        url = "@Url.RouteUrl("_addPayement", new { id = "id", source = "assurance", type = "type" })";
+                        url = url.replace("assurance", rowData.AssurId);
+                    } else {
+                        url = "@Url.RouteUrl("_addPayement", new { id = "id", type = "type" })";      
+                    }
+                    url = url.replace("id", rowData.Id).replace("type", rowData.Origine);
+                    link = '<a href="'+url+'">Regler</a>';
+                }
+                return '<div><span>' + mtt + '</span>&nbsp;&nbsp;' + link;
+            };
+            @*var cellRenderClient = function (row, column, value, rowData) {
+                var mtt = formatNumber(value);
+                var link = "";
+                if (rowData.ResteAPayerClient > 0)
+                {
+                    var url = "@Url.RouteUrl("_addPayement", new { id = "id", type = "type" })";
+                    url = url.replace("id", rowData.Id).replace("type", rowData.Origine);
+                    link = '<a href="'+url+'">Regler</a>';
+                }
+                return '<div><span>' + mtt + '</span>&nbsp;&nbsp;' + link;
+            };*@
+            var getLocalization = function () {
+                var localizationobj = {};
+                localizationobj.pagerGoToPageString = "Page :";
+                localizationobj.pagershowrowsstring = "Ligne:";
+                localizationobj.pagerrangestring = " sur ";
+                localizationobj.pagerNextButtonString = "Suivant";
+                localizationobj.loadtext = "Chargement...";
+                localizationobj.filterSearchString = "Recherche:";
+                localizationobj.pagerPreviousButtonString = "Precedent";
+                return localizationobj;
+            };
+            //init jqxtable energyblue summer shinyblack
+            $("#factureGrid").jqxDataTable({
+                width: '100%',
+                theme: 'darkblue',
+                source: dataAdapter,
+                pageable: true,
+                filterable: true,
+                groups: ['AssuranceNom'],
+                //filterMode: 'simple',
+                altRows: true,
+                pageSize: 20,
+                pagerMode: 'advanced',
+                sortable: true,
+                columnsResize: true,
+                pageSizeOptions: ['5', '10', '20', '25', '30', '35', '40'],
+                columnsResize: true,
+                localization: getLocalization(),
+                //agregate
+                showAggregates: true,
+                aggregatesHeight: 25,
+                autoRowHeight: false,
+                //groupping
+                groupsRenderer: function (value, rowData, level) {
+                    return "<strong>Assurance : " + value+"</strong>";
+                },
+                columns: [
+                    { text: 'AssuranceNom', hidden: true, cellsAlign: 'left', align: 'left', dataField: 'AssuranceNom'/*, width: 280 */ },
+                    { text: 'Date', cellsAlign: 'left', align: 'center', dataField: 'DateOp', cellsFormat: 'dd/MM/yyyy', width: '10%' },
+                    { text: 'Ref.Facture', cellsAlign: 'left', align: 'center', dataField: 'RefCommande', width: '15%'  },
+                    { text: 'Identite client', cellsAlign: 'left', align: 'left', dataField: 'ClientIdentite', width: '25%' },
+                    { text: 'Montant', cellsAlign: 'center', align: 'center', dataField: 'Montant', cellsRenderer: cellrender/*, width: '12%'*/ },
+                    //{ text: 'Montant client', cellsAlign: 'center', align: 'center', dataField: 'MontantClient', cellsRenderer: cellrender, width: '12%' },
+                    {
+                        text: 'Reste à payer', cellsAlign: 'center', align: 'center', dataField: 'ResteAPayer', cellsRenderer: cellRenderAssurance/*, width: '12%'*/,
+                        aggregates: [{
+                            'Tot': function (aggregatedValue, currentValue, column, record) {
+                                return aggregatedValue + currentValue;
+                            }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var mtt = formatNumber(aggregates.Tot);
+                            renderString += "<strong>Total : </strong>" + mtt + "</div>";
+                            return renderString;
+                        }
+                    }@*,
+                    {
+                        text: 'Reste à payer client', cellsAlign: 'center', align: 'center', dataField: 'ResteAPayerClient', cellsRenderer: cellRenderClient/*, width:'12%'*/,
+                        aggregates: [{
+                            'Total': function (aggregatedValue, currentValue, column, record) {
+                                return aggregatedValue + currentValue;
+                            }
+                        }],
+                        aggregatesRenderer: function (aggregates, column, element) {
+                            var renderString = "<div style='margin: 4px; float: right;  height: 100%;'>";
+                            var mtt = formatNumber(aggregates.Total);
+                            renderString += "<strong>Total : </strong>" + mtt + "</div>";
+                            return renderString;
+                        }
+                    }*@
+                ]
+            });
+            $("#Caisse").addClass("active");
+            $("#FactureclientARegler").addClass("active");
+        });
+    </script>
+}
+

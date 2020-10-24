@@ -1,0 +1,268 @@
+﻿@model OpticaVL.ViewModel.ReglementViewModel
+@using System.Globalization
+@{
+    ViewBag.Title = "Add";
+}
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">ajouter un règlement</li>
+}
+
+<div class="row">
+
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5>Identite Client</h5>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <span class="col-md-5">Nom :</span>
+                    <span>@Model.NomClient.ToUpper()</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-5">Prenom : </span>
+                    <span>
+                        @{
+                            var prenom = Model.PrenomClient;
+                            var prenomFormate = prenom != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(prenom) : prenom;
+                        }
+                    @prenomFormate
+                    </span>
+                </div>
+                <div class="row">
+                    <span class="col-md-5">Contact : </span>
+                    <span>@Model.Contact</span>
+                </div>
+                @if (Model.Contact2 != null)
+                {
+                    <div class="row">
+                        <span class="col-md-5">Contact2 : </span>
+                        <span>@Model.Contact2</span>
+                    </div>
+                }
+
+                @if (Model.Email != null)
+                {
+                    <div class="row">
+                        <span class="col-md-5">Email : </span>
+                        <span>@Model.Email</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h5>Repartition charges</h5>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <span class="col-md-7">Ref Facture:</span>
+                    <span><a href="#">@Model.TypeId</a></span>
+                </div>
+                <div class="row">
+                    <span class="col-md-7">Charge Assurance:</span>
+                    <span>@Model.MontantAssurance.ToString("N0", CultureInfo.CurrentCulture)</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-7">Charge Patient:</span>
+                    <span>@Model.MontantClient.ToString("N0", CultureInfo.CurrentCulture)</span>
+                </div>
+                <div class="row">
+                    <span class="col-md-7">Reste à payer:</span>
+                    <span>@Model.ResteApayerClient.ToString("N0", CultureInfo.CurrentCulture)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="row">
+            <div class="col-lg-6">
+                @using (Html.BeginForm())
+                {
+                    <div class="form-group">
+
+                        @Html.Label("Montant versé") @Html.ValidationMessage("MontantPaye", new { @class="text-danger"})
+                        @Html.TextBox("MontantPaye", @Model.Payement.MontantPaye, new { @class = "form-control", @data_bind = "value:montantverse" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Mode de règlement")
+                        <select class="form-control" name="ModePaye" data-bind="options: modeReglement, value: modeReglementSelected"></select>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Reference paiement")
+                        @Html.TextArea("RefPayement", @Model.Payement.RefPayement, new { @class = "form-control", @data_bind = "value:refmontantverse" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Date règlement") <span class="text-danger">Champ obligatoire</span> @*Html.ValidationMessage("DatePaye", new { @class="text-danger"})*@
+                        <input type="date" name="DatePaye" data-bind="value:dateReglement" value="@DateTime.Now.ToString("yyyy-MM-dd")" class="form-control" />
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-default" data-bind="enable:btnState">Valider</button>
+                        <button class="btn">Annuler</button>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h5>Historique règlement</h5>
+                    </div>
+                    <div class="panel-body">
+                        @{
+                            if (Model.HistoriqueReglement.Count > 0)
+                            {
+                                <ul data-bind="foreach:historiqueReglement" style="list-style:none;">
+                                    <li>
+                                        <span data-bind="text:dateReglement" class=""></span>
+                                        <a href="#" class=""><span data-bind="text:montantverse, click:$root.editReglement"></span></a>
+                                        <!--<span><i class="glyphicon glyphicon-print"></i></span>-->
+                                        <a href="#" class="text-danger" data-bind="click:$root.removeReglement"><i class="glyphicon glyphicon-remove-circle"></i></a>
+                                        <img src="~/DataDir/ajaxfacture.gif" data-bind="attr:{id:queryId}" hidden />
+                                    </li>
+
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+                @*<fieldset>
+                    <legend>Historique règlement</legend>
+                    @{
+                        if (Model.HistoriqueReglement.Count > 0)
+                        {
+                            <ul data-bind="foreach:historiqueReglement" style="list-style:none;">
+                                <li>
+                                    <span data-bind="text:dateReglement" class=""></span>
+                                    <a href="#" class=""><span data-bind="text:montantverse, click:$root.editReglement"></span></a>
+                                    <!--<span><i class="glyphicon glyphicon-print"></i></span>-->
+                                    <span class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></span>
+                                </li>
+
+                            </ul>
+                        }
+                    }
+                </fieldset>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+@Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+
+        $("#Caisse").addClass("active");
+        //$("#CommandeDispo").addClass("active");
+
+        var _addPostUrl = "@Url.RouteUrl("_addPostPayement", new { id = Model.TypeId, type = Model.Type, source = Model.Source })";
+        var mode = "add";
+        var _url = "@Url.RouteUrl("_historiquePayement", new { id = Model.TypeId, type = Model.Type, source = Model.Source })";
+
+        function getHistoriqueReglement()
+        {
+            $.ajax({
+                url: _url,
+                type: "GET",
+                dataType: "json",
+                success: function (d) {
+                    if (d.length > 0) {
+                        vm.historiqueReglement.removeAll();
+                        $.each(d, function (index, val) {
+                            var _mdate = formatDate(val.DatePayement);
+                            var _queryId = "wait_"+ val.Id;
+                            vm.historiqueReglement.push({ id: val.Id, queryId:_queryId, montantverse: val.MontantVerse, refmontantverse: val.RefPayement, dateReglement: _mdate, modeReglement: val.ModeReglement, D2: val.DatePayement, assuranceId : val.AssuranceId });
+                        });
+                    }
+                    console.log(vm.historiqueReglement());
+                },
+                error: function () { }
+            });
+        }
+
+        $(function() {
+            getHistoriqueReglement();
+        });
+
+        $("form").submit(function () {
+            var context = "Voulez-vous vraiment valider le paiement?";
+            if (mode != "add")
+                context = "Voulez-vous vraiment modifier le paiement?";
+            var resteApayer = parseFloat("@Model.ResteApayerClient", 10);
+            var mttVerser = parseFloat($("#MontantPaye").val(), 10);
+            if (!( mttVerser > 0)) { alertify.alert("ALERT", "Veuillez saisir un montant valide."); return false; }
+            if (resteApayer < mttVerser)
+            {
+                alertify.alert("ALERT", "Le montant restant à payer ne peut être inferieur au montant versé");
+                $("#MontantPaye").val(0).focus();
+                return false;
+            }
+            if (!confirm(context)) { return false; }
+            vm.btnState(false);
+        });
+
+        function formatDate(_date) {
+            var tmp = _date.split('-');
+            if (tmp.length > 0)
+                return tmp[2] + '/' + tmp[1] + '/' + tmp[0];
+            return false;
+        };
+        viewModel = function () {
+            x = this;
+            x.id = ko.observable(0);
+            x.montantverse = ko.observable(0);
+            x.refmontantverse = ko.observable();
+            x.dateReglement = ko.observable();
+            x.modeReglement = ko.observableArray(['Espece', 'Cheque', 'Virement']);
+            x.modeReglementSelected = ko.observable('Espece');
+            x.mdrSelected = ko.observable('Espece');
+            x.historiqueReglement = ko.observableArray([]);
+            x.btnState = ko.observable(true);
+           
+            x.editReglement = function ($parent) {
+                console.log($parent);
+                x.id($parent.id);
+                x.montantverse($parent.montantverse);
+                x.refmontantverse($parent.refmontantverse);
+                console.log($parent.modeReglement);
+                x.modeReglementSelected($parent.modeReglement);
+                console.log($parent.D2);
+                x.dateReglement($parent.D2);
+                var upUrl = "@Url.RouteUrl("_updatePayement", new { id = "id" })";
+                upUrl = upUrl.replace("id", x.id());
+                console.log(upUrl);
+                mode = 'update';
+                $("form").attr({ 'action': upUrl });
+                console.log($("form").attr('action'));
+            };
+
+            x.removeReglement = function ($parent) {
+                if (confirm("Voulez-vous vraiment annuler ce règlement?")) {
+                    var _url = "@Url.RouteUrl("_annulerPayement", new { id = "id" })";
+                   _url =  _url.replace("id", $parent.id);
+                    $("#wait_" + $parent.id).show();
+                    $.ajax({
+                        url: _url,
+                        type: "GET",
+                        dataType: "json",
+                        success: function (d) {
+                            $("#wait_" + $parent.id).hide();
+                            if (d.Statut == 200) { getHistoriqueReglement(); } else { alertify.alert("ERREUR", d.Message); }
+                        },
+                        error: function(){}
+                    });
+                }
+            }
+        };
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>
+    }
+

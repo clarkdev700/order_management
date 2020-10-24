@@ -1,0 +1,75 @@
+﻿@model List<OpticaVL.ViewModel.CommandeAReglerViewModel>
+@using System.Globalization
+@{
+    ViewBag.Title = "CommandeASolder";
+}
+@{
+    string _tmp = "";
+}
+
+@section NavigationTitle{
+    Caisse
+}
+
+@section filedeNavigation{
+    <li><a href="#">caisse</a></li>
+    <li class="active">facture à solder</li>
+}
+
+<div class="row">
+    <table class="table table-bordered table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ref commande</th>
+                <th>Identite client</th>
+                <th>Montant Assurance</th>
+                <th>Montant client</th>
+                <th>Reste à payer Assur.</th>
+                <th>Reste à payer Cl.</th>
+            </tr>
+        </thead>
+
+        @{
+            foreach (var cmd in Model.OrderBy(x=>x.AssuranceNom).ToList())
+        {
+            if (cmd.AssuranceNom != _tmp) {
+                    <tr><th colspan="7">@cmd.AssuranceNom.ToUpper()</th></tr>
+                    if (!string.IsNullOrEmpty(_tmp)) {}
+            } else {    }
+                <tr>
+                    <td>@cmd.Date</td>
+                    <td>@cmd.RefCommande</td>
+                    <td>@cmd.ClientIdentite</td>
+                    <td>@cmd.MontantAssurance.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>@cmd.MontantClient.ToString("N0", CultureInfo.CurrentCulture)</td>
+                    <td>
+                        <span>@cmd.ResteApayerAssurance.ToString("N0", CultureInfo.CurrentCulture)</span>
+                        @if (cmd.ResteApayerAssurance > 0)
+                        {
+                            <span>
+                                <a href="@Url.RouteUrl("_addPayement", new { id = cmd.Id, source = "assurance", type =  cmd.Origine })">Regler</a>
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        <span>@cmd.ResteAPayerClient.ToString("N0", CultureInfo.CurrentCulture)</span> &nbsp;
+                        @if (cmd.ResteAPayerClient > 0)
+                        {
+                            <span><a href="@Url.RouteUrl("_addPayement", new { id = cmd.Id, type = cmd.Origine })">Regler</a></span>
+                        }
+                    </td>
+                </tr>
+            
+            _tmp = cmd.AssuranceNom;
+        }
+        }
+        
+    </table>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $("#Caisse").addClass("active");
+        $("#FactureARegler").addClass("active");
+    </script>
+    }

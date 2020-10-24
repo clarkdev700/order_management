@@ -1,0 +1,24 @@
+﻿@model List<OpticaVL.Models.Marque>
+
+<p>
+    <a href="@Url.RouteUrl("_addMarque")" class="btn btn-primary">Ajouter</a>
+</p>
+<table class="table table-striped">
+    <tr>
+        <th colspan="2">Liste des Marques</th>
+    </tr>
+    @if (Model.Count > 0)
+    {
+        foreach (OpticaVL.Models.Marque mq in Model)
+        {
+            <tr>
+                <td>@mq.Libelle.ToUpper()</td>
+                <td>
+                    <span><a href="@Url.RouteUrl("_updateMarque", new { id = mq.Id })"><i class="glyphicon glyphicon-edit"></i></a></span> |
+                    <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                </td>
+            </tr>
+        }
+    }
+</table>
+

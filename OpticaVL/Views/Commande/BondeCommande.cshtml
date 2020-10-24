@@ -1,0 +1,90 @@
+﻿@model OpticaVL.ViewModel.BonDeCommandeModel
+@{
+    ViewBag.Title = "BondeCommande";
+}
+
+<div class="row pull-right">
+    <span>Lomé, le @DateTime.Now.ToString("dd/MM/yyyy")</span>
+</div>
+
+<div class="row text-center">
+    <h4> <u>  <strong>Bon de commande N&ordm; @Model.Reference</strong> </u> </h4>
+</div>
+
+<div class="row">
+    <div class="col-lg-7"></div>
+    <div class="col-lg-4">
+        <div class="row">
+            <span class="col-sm-4">Nom :</span>
+            <span class="">@Model.Nom</span>
+        </div>
+        <div class="row">
+            <span class="col-sm-4">Prenom :</span>
+            <span class="">@Model.Prenom</span>
+        </div>
+        <div class="row">
+            <span class="col-sm-4">Contact :</span>
+            <span class="">@Model.Contact</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <table class="table table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>Designation</th>
+                <th>Qte</th>
+                <th>Prix</th>
+                <th>Rem</th>
+                <th>Mtt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.LigneBonDeCommandes.Count > 0)
+            {
+                foreach (var c in Model.LigneBonDeCommandes)
+                {
+                    <tr>
+                        <td>@c.Designation</td>
+                        <td>@c.Qte</td>
+                        <td>@c.Prix</td>
+                        <td>@c.Rem</td>
+                        <td>@c.Montant</td>
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr><td colspan="3">Montant Total</td><td>@Model.MontantTotal</td></tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="row">
+            <span class="col-xs-6">Charge Assurance :</span>
+            <span class="">@Model.MttAssur</span>
+        </div>
+        <div class="row">
+            <span class="col-xs-6">Charge Client :</span>
+            <span class="">@Model.MttClient</span>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="row">
+            <span class="col-xs-6">MttCl. vers&eacute; :</span>
+            <span class="">@Model.MttVerse</span>
+        </div>
+        <div class="row">
+            <span class="col-xs-6">Mtt Reste &agrave; payer :</span>
+            <span class="">@Model.ResteApayer</span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <h3>Signature</h3>
+</div>
+

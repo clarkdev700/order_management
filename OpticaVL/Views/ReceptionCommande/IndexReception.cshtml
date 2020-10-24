@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "IndexReception";
+}
+
+@section NavigationTitle{
+    Commande
+}
+
+@section filedeNavigation{
+    <li><a href="#">commandes</a></li>
+    <li class="active">reception-commande</li>
+}
+
+<div class="row">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { @class="form-inline"}))
+    {
+        <div class="form-group">
+            @Html.Label("Debut")
+            <input type="date" name="deb" class="form-control" value="@ViewBag.Date" id="deb"/>
+        </div>
+        <div class="form-group">
+            @Html.Label("Fin")
+            <input type="date" name="end" class="form-control" value="@ViewBag.Date" id="end"/>
+        </div>
+        <div class="form-group">
+            @Html.Label("Nom")
+            @Html.TextBox("nom", null, new { @class = "form-control", placeholder = "saisir nom ou prenom du client" })
+        </div>
+        <div class="form-group">
+           <button class="btn btn-default" type="button" onclick="getCommande()" id="btn_OK">OK</button>
+        </div>
+    }
+</div>
+
+<div class="row">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Ref.</th>
+                <th>Client</th>
+                <th>Charge client</th>
+                <th>Charge assurance</th>
+                <th>Statut</th>
+                <th>Statut livraison</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:arrCommande">
+            <tr>
+                <td data-bind="text:Date"></td>
+                <td data-bind="text:Ref"></td>
+                <td data-bind="text:Identite"></td>
+                <td >
+                    <span data-bind="text:ChargeClient"></span>
+                    <span data-bind="visible:ChargeClient > 0" title="Enregistrer la charge client"><a data-bind="attr:{href:UrlClient}">Regler</a></span>
+                </td>
+                <td >
+                    <span data-bind="text:ChargeAssurance"></span>
+                    <span data-bind="visible:ChargeAssurance > 0"><a data-bind="attr:{href:UrlAssur}" title="Enregistrer la charge assurance">Regler</a></span>
+                </td>
+                <td>
+                    <span data-bind="visible:StatutConception" class="text-success" title="commande disponible"><i class="glyphicon glyphicon-ok-circle"></i></span>
+                </td>
+                <td>
+                    <span data-bind="visible:StatutLivraison" class="text-success"  title="commande livrée"><i class="glyphicon glyphicon-ok-circle"></i></span>
+                </td>
+                <td>
+                    <span data-bind="visible:(ChargeClient == 0 && !StatutLivraison)"><a data-bind="attr:{href:UrlReception}"><i class="glyphicon glyphicon-edit"></i></a></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $("#indexGestionCommande").addClass("active");
+        $("#receptionCommande").addClass("active");
+        $("#btn_OK").click();
+        function getCommande()
+        {
+            $.ajax({
+                url:"@Url.RouteUrl("_getlisteReceptionCommande")",
+                type:"GET",
+                data: { deb: $("#deb").val(), end: $("#end").val(), nom:$("#nom").val() },
+                dataType:"json",
+                success: function (d) {
+                    if (d.length > 0) {
+                        vm.arrCommande.removeAll();
+                        var _urlChargeclient = "@Url.RouteUrl("_addPayement", new { id = "id", type = "commande" })";
+                        var _urlChargeAssur = "@Url.RouteUrl("_addPayement", new { id = "id", type = "commande", source = "assurance" })";
+                        var _urlValidReception = "@Url.RouteUrl("_addReceptionCmde", new { id = "id" })"; 
+                        $.each(d, function (i, val) {
+                            _iUrlAssur = _urlChargeAssur.replace("id", val.Id);
+                            _iUrlClient = _urlChargeclient.replace("id", val.Id);
+                            _iUrlReception = _urlValidReception.replace("id", val.Id);
+                            vm.arrCommande.push({ Id: val.Id, Date: val.Date, Ref: val.Ref, Identite: val.Identite, ChargeClient: val.ChargeClient, ChargeAssurance: val.ChargeAssurance, StatutConception: val.StatutConception, StatutLivraison: val.StatutLivraison, UrlAssur: _iUrlAssur, UrlClient: _iUrlClient, UrlReception: _iUrlReception});
+                        });
+                    }
+                    console.log(vm.arrCommande());
+                },
+                error: function(){}
+            });
+        }
+
+        function generateUrl(id)
+        {
+
+        }
+
+        var vm = { arrCommande: ko.observableArray([]) };
+        ko.applyBindings(vm);
+        
+    </script>
+    }

@@ -1,0 +1,98 @@
+﻿@model OpticaVL.ViewModel.FactureVenteModel
+@using System.Globalization
+@using Developpez.Dotnet
+@{
+    ViewBag.Title = "Facture vente";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+}
+
+
+@{
+    int i = 0;
+    while (i < 1)
+    {
+        i++;
+        try
+        {
+            <div class="row" style="margin:25px 15px 40px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+                @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+            </div>
+            <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+                <div class="row text-center" style="margin-bottom:35px;">
+                    <h2 style=""><u><strong> FACTURE N&ordm;@Model.NumeroRecu</strong> </u></h2>
+                </div>
+
+                <div class="row" style="margin-bottom:30px;">
+                    <div class="col-md-6">
+                        <span class="col-xs-4"><strong>CLIENT :</strong></span> <span>@Model.IdentiteClient</span>
+                    </div>
+
+                    @{
+                        if (Model.NomAssurance != null)
+                        {
+                            <div class="col-md-6">
+                                <span class="col-xs-5"><strong>ASSURANCE :</strong></span> <span>@Model.NomAssurance</span>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="row">
+                    <table border="1" cellpadding="5" cellspacing="5" style="width:100%; max-height:650px; min-height:370px;" rules="groups" frame="box">
+                        <colgroup width="5%" span="1"></colgroup>
+                        <colgroup width="50%" span="1"></colgroup>
+                        <colgroup span="1" width="15%"></colgroup>
+                        <colgroup span="1" width="13%"></colgroup>
+                        <colgroup span="1" width="17%"></colgroup>
+                        <thead>
+                            <tr class="" style="background-color: #a2b1d0; font-size: 20px; ">
+                                <!-- #8f909f;-->
+                                <th class="text-center" height="">QTE</th>
+                                <th class="text-center">DESIGNATION</th>
+                                <th class="text-center">PU (CFA)</th>
+                                <th class="text-center">REMISE</th>
+                                <th class="text-center">SOUS TOTAL (CFA)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.FactureVenteLigneModel.Count > 0)
+                            {
+                                foreach (var lv in Model.FactureVenteLigneModel)
+                                {
+                                    <tr>
+                                        <td valign="middle" align="center" class="">@lv.Qte</td>
+                                        <td valign="middle" align="center" class="">@lv.Designation</td>
+                                        <td valign="middle" align="center" class="">@lv.Pu</td>
+                                        <td valign="middle" align="center" class="">@lv.Remise</td>
+                                        <td valign="middle" align="center" class="">@lv.SousTotal</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot>
+                            <!-- #b8b8b8 #aab9bf -->
+                            <tr style="font-size: 20px; background-color: #b8b8b8;"><th colspan="4" class="text-center" height="40px;">TOTAL</th><th colspan="1" valign="middle" align="center" class="text-center">@Model.MontantFacture.ToString("N0", CultureInfo.CurrentCulture)</th></tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+                <div class="row">
+                    @{
+                        var mttEnlettre = NumberConverter.Spell((ulong) Model.MontantFacture);
+                        var mttEnLettreFormater = mttEnlettre[0].ToString().ToUpper() + mttEnlettre.Substring(1);
+                    }
+                    <h3>Facture arr&ecirc;t&eacute;e &agrave; la somme de <strong>@mttEnLettreFormater (@Model.MontantFacture.ToString("N0", CultureInfo.CurrentCulture))FCFA</strong></h3>
+                </div>
+                <div class="row pull-right" style="margin-top:20px;">
+                    <h2>
+                        Signature
+                    </h2>
+                </div>
+            </div>
+        }
+        catch (Exception ex)
+        {
+            <h3>Une erreur s'est produite lors de la  generation de la facture. Veuillez saisir les donnees obligatoires.</h3>
+        }
+    }
+}

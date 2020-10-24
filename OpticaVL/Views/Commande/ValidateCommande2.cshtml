@@ -1,0 +1,80 @@
+﻿@model List<OpticaVL.ViewModel.QCommandeModel>
+@{
+    ViewBag.Title = "ValidateCommande";
+}
+
+<h4>Validation de Commande pr&ecirc;te</h4>
+<div class="row">
+
+    @{
+        <p class="pull-right"><button class="btn btn-default" id="btnValider" data-bind="visible:statut">Valider</button></p>
+        <table class="table table-responsive table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Details commande</th>
+                    <th>Date Livraison</th>
+                    <th>Date Retard Livraison</th>
+                    <th>Valider</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach:commandeArr">
+                <tr>
+                    <td data-bind="text:Date"></td>
+                    <td>
+                        <p>
+                            @*<h5>Details produit</h5>*@
+                            <ul data-bind="foreach:Details" style="">
+                                <li>
+                                    <!--<span class=""><em><strong>Designation:</strong></em></span>-->
+                                    <span><em><strong data-bind="text:Designation"></strong></em></span> <span>X</span> <span data-bind="text:Qte"></span> &nbsp;&nbsp;
+                                    <span class="" data-bind="visible:Marque != 'Sans Marque'"><em><strong>Marque:</strong></em></span>
+                                    <span data-bind="text:Marque, visible:Marque != 'Sans Marque'"></span>
+                                </li>
+                            </ul>
+                        </p>
+                    </td>
+                    <td><input type="date" data-bind="value: DateLivraison" class="form-control" /></td>
+                    <td> <input type="date" data-bind="value: DateRetardLivraison" class="form-control" /></td>
+                    <td class=""><input type="checkbox" data-bind="checked: Valider" /></td>
+                </tr>
+            </tbody>
+        </table>
+    }
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            $.ajax({
+                url: "@Url.RouteUrl("_listeCommandeEnAttente")",
+                type: "GET",
+                dataType: "json",
+                success: function (d) {
+                    if (d.length > 0) {
+                        $.each(d, function (i, val) {
+                            console.log(val.DetailsCommande);
+                            vm.commandeArr.push({ Id: val.Id, Date: val.Date, DateLivraison: val.DateLivraison, DateRetardLivraison: val.DateRetardLivraison, Details: val.DetailsCommande, Valider: val.Valider });
+                            vm.statut(true);
+                        });
+                    }
+                },
+                error: function () { }
+            });
+        });
+
+        $("#btnValider").click(function () {
+            $.ajax({
+                url: "@Url.RouteUrl("_valdidationCommandePost")",
+                type: "POST",
+                data: JSON.stringify({ qcmodel: vm.commandeArr() }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function () { },
+                error: function () { }
+            });
+        });
+
+        var vm = { commandeArr: ko.observableArray(), statut: ko.observable(false) };
+        ko.applyBindings(vm);
+    </script>
+}

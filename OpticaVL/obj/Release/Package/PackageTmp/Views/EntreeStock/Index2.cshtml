@@ -1,0 +1,99 @@
+﻿@model List<OpticaVL.ViewModel.ProductStock>
+@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Stock
+}
+
+@section filedeNavigation{
+    <li class="active">historique de mouvement de stock</li>
+}
+
+<div class="row">
+    <p>
+        <a href="@Url.RouteUrl("_addStock")" class="btn btn-primary btn-sm">Ajouter</a>
+    </p>
+    <table class="table table-condensed table-striped table-responsive">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Designation</th>
+                <th>Fournisseur</th>
+                <th>Marque</th>
+                <th>Quantite</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach:Arr">
+            <tr>
+                <td data-bind="text:date"></td>
+                <td data-bind="text:designation"></td>
+                <td data-bind="text:fournisseur"></td>
+                <td data-bind="text:marque"></td>
+                <td data-bind="text:qte"></td>
+                <td>
+                    <span><a href="#"><i class="glyphicon glyphicon-edit"></i></a></span> | 
+                    <span data-bind="click:$parent.removeItem"><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span> 
+                    <img src="~/DataDir/ajaxfacture.gif" hidden data-bind="attr:{id:id}" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $("#Stock").addClass("active");
+        $("#mouvementStock").addClass("active");
+        var _url = "@Url.RouteUrl("_GetListeEntree", new { id="id"})";
+        _url = _url.replace("id", "@ViewBag.prodId");
+
+        $.ajax({
+            url: _url,
+            type: "GET",
+            dataType: "json",
+            success: function (d) {
+                if (d.length > 0) {
+                    $.each(d, function(i, val){
+                        var _idWaitQuery = 
+                        vm.Arr.push({
+                            id: val.Id, date: val.Date, designation: val.Designation.toUpperCase(), fournisseur: val.Fournisseur, marque: val.Marque, qte: val.Qte
+                            });
+                    });
+                }
+            },
+            error: function () { }
+        });
+
+        var viewModel = function () {
+            var x = this;
+            x.Arr = ko.observableArray([]);
+            x.removeItem = function ($parent) {
+                if (!confirm("Voulez vous vraiment annuler la l'operation d'entree en stock?")) { return false; }
+                var removeUrl = "@Url.RouteUrl("_delEntreeStock", new { id = "id" })";
+                var _url = removeUrl.replace("id", $parent.id);
+                $("#" + $parent.id).show();
+                $.ajax({
+                    url: _url,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (d) {
+                        alertify.set("notifier", "position", "top-right");
+                        $("#" + $parent.id).hide();
+                        if (d.Statut == 200) {
+                            alertify.success("Validation effectuée avec succès!");
+                            x.Arr.remove($parent);
+                        } else {
+                            alertify.error(d.Message);
+                        }
+                    },
+                    error: function () { }
+                });
+            }
+        }
+        var vm = new viewModel();
+        ko.applyBindings(vm);
+    </script>
+}

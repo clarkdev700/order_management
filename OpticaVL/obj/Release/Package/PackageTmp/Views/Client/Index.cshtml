@@ -1,0 +1,58 @@
+﻿@model List<OpticaVL.Models.Client>
+@{
+    ViewBag.Title = "Index";
+}
+
+@section NavigationTitle{
+    Clients
+    }
+
+@section filedeNavigation {
+    <li><a href="@Url.RouteUrl("_listeClient")">Clients</a></li>
+    <li class="active">Liste des clients</li>
+    }
+<div class="row">
+    <p><a href="@Url.RouteUrl("_addClient")" class="btn-flat btn-sm btn-primary">Ajouter</a></p>
+    <table class="table  table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Profession</th>
+                <th>Contact</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.Nom</td>
+                    <td>@c.Prenom</td>
+                    <td>@c.Profession</td>
+                    <td>
+                        @c.Contact
+                        @{var C2 = "";}
+                        @if (c.Contact2 != null)
+                        {
+                            C2 = "/" + @c.Contact2;
+                        }
+                        @C2
+                    </td>
+                    <td>
+                        <span><a href="@Url.RouteUrl("_ListeCommandeClient", new { id = c.Id })"><i class="glyphicon glyphicon-align-center"></i></a></span>|
+                        <span><a href="@Url.RouteUrl("_updateClient", new { id = c.Id})"><i class="glyphicon glyphicon-edit"></i></a></span>|
+                        <span><a href="#" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a></span>
+                    </td>
+                </tr>
+            }
+            
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script>
+        $("#indexClient").addClass("active");
+    </script>
+}

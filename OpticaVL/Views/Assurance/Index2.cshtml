@@ -1,0 +1,81 @@
+﻿@section NavigationTitle{
+    Assurances
+}
+
+@section filedeNavigation{
+    <li><a href="#">Assurances</a></li>
+    <li class="active">liste des assurances</li>
+}
+@section headerStyle{
+    @Styles.Render("~/Content/css__")
+}
+
+<div class="row">
+   
+</div>
+<div class="row">
+    <p>
+        <a class="btn btn-primary" href="@Url.RouteUrl("_addAssurance")">Ajouter</a>
+    </p>
+    <div id="assuranceGrid"></div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/Scripts/js_")
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var source = {
+                datatype: "json",
+                datafields: [
+                    { name: "Nom", type: 'string' },
+                    { name: "Code", type: 'string' },
+                    { name: "Id", type:'int'}
+                ],
+                id:'Id',
+                url: "@Url.RouteUrl("_getListeAssurance")"
+            };
+            var dataAdapter = new $.jqx.dataAdapter(source);
+            var cellrender = function (row, column, value, rowData) {
+                var update, del;
+                update = '<a href="@Url.RouteUrl("_updatePostAssurance", new { id = "id" })" title="editer une assurance"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;';
+                del = '<a href="#" title="supprimer une assurance" class="text-danger"><i class="glyphicon glyphicon-remove-circle"></i></a>';
+                var ch = update +" | " + del;
+                return ch.replace(/id/gi, value);
+            };
+            var getLocalization = function () {
+                var localizationobj = {};
+                localizationobj.pagerGoToPageString = "Page :";
+                localizationobj.pagershowrowsstring = "Ligne:";
+                localizationobj.pagerrangestring = " sur ";
+                localizationobj.pagerNextButtonString = "Suivant";
+                localizationobj.loadtext = "Chargement...";
+                localizationobj.filterSearchString = "Recherche:";
+                localizationobj.pagerPreviousButtonString = "Precedent";
+                return localizationobj;
+            };
+            //init jqxtable
+            $("#assuranceGrid").jqxDataTable({
+                width: '100%',
+                theme: 'darkblue',
+                source: dataAdapter,
+                pageable: true,
+                filterable: true,
+                filterMode: 'simple',
+                altRows: true,
+                pageSize: 20,
+                pagerMode: 'advanced',
+                sortable: true,
+                columnsResize: true,
+                localization: getLocalization(),
+                columns: [
+                    { text: "Code", datafield: "Code", width:"10%" },
+                    { text: "Nom", datafield: "Nom"/*, width:"10%"*/ },
+                    { text: "", datafield: "Id", width: "15%", cellsAlign: 'center', sortable :false,cellsRenderer: cellrender, filterable :false }
+                ]
+            });
+            $("#Parametre").addClass("active");
+            $("#assurance").addClass("active");
+        });
+    </script>
+}
+

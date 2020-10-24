@@ -1,0 +1,84 @@
+﻿@model List<OpticaVL.ViewModel.JournalVenteViewModel>
+@using System.Globalization
+@using Developpez.Dotnet
+@{
+    ViewBag.Title = "Report";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+    float Mtt = 0;
+    var nbPage = (decimal)Model.Count / 25;
+    nbPage = Math.Ceiling(nbPage);
+}
+
+
+@{
+    int i = 0, x = 0;
+    while (i < nbPage)
+    {
+        <div class="row" style="margin:25px 15px 40px 15px;/*margin-bottom:90px;margin-top:15px;*/">
+            @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+        </div>
+        <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+            <div class="row text-center" style="margin-bottom:35px;">
+                <h2 style=""><u><strong> Journal de vente du @ViewBag.Periode.Deb au @ViewBag.Periode.End </strong> </u></h2>
+            </div>
+
+            <div class="row">
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                        <tr class="">
+                            <!-- #8f909f; style="background-color: #a2b1d0; font-size: 20px; " -->
+                            <th class="text-center">Date</th>
+                            <th class="text-center">Designation</th>
+                            <th class="text-center">Marque</th>
+                            <th class="text-center">Qte</th>
+                            <th class="text-center">Montant</th>
+                            <th class="text-center">Total Remise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count > 0)
+                        {
+                            var nb = Model.Count;
+                            for (var j = x; j < nb; j++)
+                            {
+                                Mtt += Model[j].Montant;
+                                Mtt -= Model[j].TotalRem;
+                                <tr class="">
+                                    <td>@Model[j].Date</td>
+                                    <td class="">@Model[j].Designation</td>
+                                    <td>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Model[j].Marque)</td>
+                                    <td class="text-center">@Model[j].QteVendu</td>
+                                    <td class="text-right">@Model[j].Montant.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                    <td class="text-center">@Model[j].TotalRem.ToString("N0", CultureInfo.CurrentCulture)</td>
+                                </tr>
+                                if (j > 0 && j % 25 == 0)
+                                {
+                                    x = j + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    </tbody>
+                </table>
+                @{
+                    i++;
+                    if ((nbPage - i) > 0)
+                    {
+                        <div style="page-break-after: always; border:none;"></div>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    <div style="margin-left:94px; margin-right:94px; font-size:17px;">
+        <div class="row">
+            @{
+                var mttEnlettre = NumberConverter.Spell((ulong)Mtt);
+                var mttEnLettreFormater = mttEnlettre[0].ToString().ToUpper() + mttEnlettre.Substring(1);
+            }
+            <h3>Montant en caisse evalué &agrave; la somme de <strong>@mttEnLettreFormater (@Mtt.ToString("N0", CultureInfo.CurrentCulture))FCFA</strong></h3>
+        </div>
+    </div>
+
+}

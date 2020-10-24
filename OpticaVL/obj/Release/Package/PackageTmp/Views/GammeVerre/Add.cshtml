@@ -1,0 +1,55 @@
+﻿@model OpticaVL.Models.GammeVerre
+@{
+    //Layout = null;
+}
+
+@section NavigationTitle{
+    Gamme verre
+}
+
+@section filedeNavigation{
+    <li><a href="#" class="active">gamme verre</a></li>
+    <!--<li class="active">facture à solder</li>-->
+}
+
+<div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-5">
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                @Html.ValidationSummary(true)
+            </div>
+            <div class="form-group">
+                @Html.Label("Libelle") <span class="text-danger" id="errLib">Champ obligatoire</span>
+                @Html.TextBox("Libelle", Model.Libelle, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-default">Valider</button>
+                <button class="btn btn-link">Annuler</button>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+@Html.Action("Index")
+</div>
+
+@section scripts{
+@Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        $("form").submit(function () {
+            if ($('#Libelle').val() == "") {
+                $("#errLib").show();
+                return false;
+            } else {
+                $("#errLib").hide();
+            }
+        });
+        $("#Parametre").addClass("active");
+        $("#gammeVerre").addClass("active");
+    </script>
+    }
+

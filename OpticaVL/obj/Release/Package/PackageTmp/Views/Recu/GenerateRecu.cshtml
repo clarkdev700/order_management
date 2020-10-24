@@ -1,0 +1,124 @@
+﻿@model OpticaVL.ViewModel.RecuViewModel
+@{
+    ViewBag.Title = "GenerateRecu";
+    Layout = "~/Views/Shared/PrintLayout.cshtml";
+}
+
+@{ int i = 0;}
+@{ 
+    while (i < 2) 
+    {
+        float TotalRem = 0, TotalMtt = 0;
+        i++; 
+        <div class="row">
+            @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+        </div>
+        <div class="row text-center">
+            <h4><u><strong>Re&ccedil;u N&ordm; @Model.NumeroRecu</strong></u></h4>
+        </div>
+        <div class="row">
+            <div class="col-sm-7"></div>
+            <div class="col-sm-4 pull-right">
+                    <div class="row">
+                        <span class="col-xs-5">Nom :</span>
+                        <span>@Model.Nom</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-xs-5">Prenom :</span>
+                        <span>@Model.Prenom</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-xs-5">Contact :</span>
+                        <span></span>
+                    </div>
+             </div>
+        </div>
+        <div class="row">
+            <table class="table table-bordered table-responsive table-striped" style="margin:5px 30px;">
+                <thead>
+                    <tr>
+                        <th>Designation</th>
+                        <th>Qte</th>
+                        <th>Pu</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var lf in Model.LigneFacture)
+                    {
+                        TotalRem += lf.Rem;
+                        TotalMtt += lf.Prix * lf.Qte;
+                        <tr>
+                            <td>@lf.Designation</td>
+                            <td>@lf.Qte</td>
+                            <td>@lf.Prix</td>
+                            <td>@(lf.Prix * lf.Qte)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="row">
+                    <span class="col-sm-4">Mtt Total :</span>
+                    <span>@TotalMtt</span>
+                </div>
+                <div class="row">
+                    <span class="col-sm-4">Remise :</span>
+                    <span>@TotalRem</span>
+                </div>
+                <div class="row">
+                    <span class="col-sm-4">Mtt D&ucirc; :</span>
+                    <span>@(TotalMtt - TotalRem)</span>
+                </div>
+            </div>
+
+            <div class="col-sm-5">
+                <div class="row">
+                    <span class="col-sm-4">Mtt Vers&eacute; :</span>
+                    <span>@Model.MttVerse</span>
+                </div>
+                <div class="row">
+                    <span class="col-sm-4">Reste à payer:</span>
+                    <span>@Model.MttResteApayer</span>
+                </div>
+            </div>
+        </div>
+        <div class="row pull-right">
+            <h4>Signature</h4>
+        </div>
+    } 
+       
+  }
+@*{float TotalRem = 0, TotalMtt = 0; }*@
+@*
+<div class="row">
+    @Html.Partial("~/Views/Shared/DocEntete.cshtml")
+</div>*@
+
+@*<div class="row pull-right">
+    <span>Lomé, le @DateTime.Now.ToString("dd/MM/yyyy")</span>
+</div>*@
+
+
+
+
+
+
+@*<div class="row">
+    <div class="col-md-6">
+        <span class="col-sm-4">Nom :</span><span>@Model.Nom</span><br />
+        <span class="col-sm-4">Prenom :</span> <span>@Model.Prenom</span>
+    </div>
+    <div class="col-md-6">
+        <span class="col-sm-4">Mtt. Assurance :</span><span>@Model.MttAssur</span><br />
+        <span class="col-sm-4">Mtt. Client :</span><span>@Model.MttClient</span>
+    </div>
+</div>*@
+
+
+
+
+
+

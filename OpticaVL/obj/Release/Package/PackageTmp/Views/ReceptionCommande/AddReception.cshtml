@@ -1,0 +1,108 @@
+﻿@model OpticaVL.Models.ReceptionCommande
+@using System.Globalization
+@{
+    ViewBag.Title = "AddReception";
+}
+
+@section NavigationTitle{
+    Commande
+}
+
+@section filedeNavigation{
+    <li><a href="#">commandes</a></li>
+    <li class="active">ajouter une reception-commande</li>
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="row">
+            <div class="panel panel-default">
+                @{var client = ViewBag.Commande.Client;}
+                <div class="panel-heading">
+                    <h4>Identite client</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <span class="col-sm-5">Nom :</span>
+                        <span>@client.Nom.ToUpper()</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-sm-5">Prenom :</span>
+                        <span>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(client.Prenom)</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-sm-5">Contact :</span>
+                        <span>@client.Contact</span>
+                    </div>
+                    @if (client.Contact2 != null)
+                    {
+                        <div class="row">
+                            <span class="col-sm-5">Contact2 :</span>
+                            <span>@client.Contact2</span>
+                        </div>
+                    }
+                    @if (client.Adresse != null)
+                    {
+                        <div class="row">
+                            <span class="col-sm-5">Email :</span>
+                            <span>@client.Adresse</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Details commande</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <span class="col-sm-6">Ref. cmde :</span>
+                        <span><a href="#">@ViewBag.Commande.Id</a></span>
+                    </div>
+                    <div class="row">
+                        <span class="col-sm-6">Charge Assurance :</span>
+                        <span>@ViewBag.Commande.MontantAssur.ToString("N0", CultureInfo.CurrentCulture)</span>
+                    </div>
+                    <div class="row">
+                        <span class="col-sm-6">Charge client :</span>
+                        <span>@ViewBag.Commande.MontantClient.ToString("N0", CultureInfo.CurrentCulture)</span>
+                    </div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        @using (Html.BeginForm())
+        {
+            <div class="form-group">
+                @Html.Label("Date reception")
+                <input type="date" value="@Model.DateReception.ToString("yyyy-MM-dd")" name="DateReception" class="form-control" />
+            </div>
+            <div class="form-group">
+                @Html.Label("Identite(Nom & Prenoms)")
+                @Html.TextBox("IdentiteReceptionnaire", Model.IdentiteReceptionnaire, new { @class = "form-control" })
+            </div>
+            <div class="form-group">
+                @Html.Label("Commentaire")
+                @Html.TextArea("Commentaire", Model.Commentaire, new { @class="form-control"})
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default" type="submit">Valider</button>
+                <a href="#" class="btn btn-default">Annuler</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $("#indexGestionCommande").addClass("active");
+        $("#receptionCommande").addClass("active");
+    </script>
+    }
+
